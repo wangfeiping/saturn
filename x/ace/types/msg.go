@@ -5,43 +5,46 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// TODO: Describe your actions, these will implment the interface of `sdk.Msg`
-/*
-// verify interface at compile time
-var _ sdk.Msg = &Msg<Action>{}
+var _ sdk.Msg = &MsgAce{}
 
-// Msg<Action> - struct for unjailing jailed validator
-type Msg<Action> struct {
-	ValidatorAddr sdk.ValAddress `json:"address" yaml:"address"` // address of the validator operator
+// MsgAce - struct for game play request
+type MsgAce struct {
+	Seed    *Seed          `json:"seed" yaml:"seed"` // random seed
+	Func    string         `json:"func" yaml:"func"`
+	Args    string         `json:"args" yaml:"args"`
+	Address sdk.AccAddress `json:"address" yaml:"address"`
 }
 
-// NewMsg<Action> creates a new Msg<Action> instance
-func NewMsg<Action>(validatorAddr sdk.ValAddress) Msg<Action> {
-	return Msg<Action>{
-		ValidatorAddr: validatorAddr,
-	}
+// NewMsgAce creates a new MsgAce instance
+func NewMsgAce(seed *Seed, function, args string) MsgAce {
+	return MsgAce{
+		Seed: seed, Func: function, Args: args}
 }
 
-const <action>Const = "<action>"
+// AceConst const of Ace
+const AceConst = "Ace"
 
-// nolint
-func (msg Msg<Action>) Route() string { return RouterKey }
-func (msg Msg<Action>) Type() string  { return <action>Const }
-func (msg Msg<Action>) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.ValidatorAddr)}
+// Route returns route key
+func (msg MsgAce) Route() string { return RouterKey }
+
+// Type returns message type
+func (msg MsgAce) Type() string { return AceConst }
+
+// GetSigners returns message signers
+func (msg MsgAce) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress(msg.Address)}
 }
 
 // GetSignBytes gets the bytes for the message signer to sign on
-func (msg Msg<Action>) GetSignBytes() []byte {
+func (msg MsgAce) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // ValidateBasic validity check for the AnteHandler
-func (msg Msg<Action>) ValidateBasic() error {
-	if msg.ValidatorAddr.Empty() {
+func (msg MsgAce) ValidateBasic() error {
+	if msg.Address.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing validator address")
 	}
 	return nil
 }
-*/
