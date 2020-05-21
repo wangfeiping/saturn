@@ -24,8 +24,7 @@ import (
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/wangfeiping/github.com/wangfeiping/saturn/app"
-
+	"github.com/wangfeiping/saturn/app"
 )
 
 func main() {
@@ -47,8 +46,8 @@ func main() {
 	// with the cdc
 
 	rootCmd := &cobra.Command{
-		Use:   "appcli",
-		Short: "Command line interface for interacting with appd",
+		Use:   "saturncli",
+		Short: "Command line interface for interacting with saturnd",
 	}
 
 	// Add --chain-id to persistent flags and mark it required

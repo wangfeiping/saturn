@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -9,6 +11,7 @@ var _ sdk.Msg = &MsgAce{}
 
 // MsgAce - struct for game play request
 type MsgAce struct {
+	AceHash string         `json:"ace_hash" yaml:"ace_hash"`
 	Seed    *Seed          `json:"seed" yaml:"seed"` // random seed
 	Func    string         `json:"func" yaml:"func"`
 	Args    string         `json:"args" yaml:"args"`
@@ -16,23 +19,30 @@ type MsgAce struct {
 }
 
 // NewMsgAce creates a new MsgAce instance
-func NewMsgAce(seed *Seed, function, args string) MsgAce {
-	return MsgAce{
-		Seed: seed, Func: function, Args: args}
+func NewMsgAce(
+	aceHash string, seed *Seed,
+	function, args string,
+	addr sdk.AccAddress) (*MsgAce, error) {
+	return &MsgAce{
+		AceHash: aceHash,
+		Seed:    seed,
+		Func:    function,
+		Args:    args,
+		Address: addr}, nil
 }
 
 // AceConst const of Ace
 const AceConst = "Ace"
 
-// Route returns route key
+// Route returns the name of module
 func (msg MsgAce) Route() string { return RouterKey }
 
-// Type returns message type
+// Type returns action
 func (msg MsgAce) Type() string { return AceConst }
 
-// GetSigners returns message signers
+// GetSigners defines whose signature is required
 func (msg MsgAce) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.Address)}
+	return []sdk.AccAddress{msg.Address}
 }
 
 // GetSignBytes gets the bytes for the message signer to sign on
@@ -43,8 +53,9 @@ func (msg MsgAce) GetSignBytes() []byte {
 
 // ValidateBasic validity check for the AnteHandler
 func (msg MsgAce) ValidateBasic() error {
+	fmt.Printf("msg.Address.String(): %s\n", msg.Address.String())
 	if msg.Address.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing validator address")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid address")
 	}
 	return nil
 }

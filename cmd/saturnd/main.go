@@ -13,7 +13,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/wangfeiping/github.com/wangfeiping/saturn/app"
+	"github.com/wangfeiping/saturn/app"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -42,8 +42,8 @@ func main() {
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
-		Use:               "appd",
-		Short:             "app Daemon (server)",
+		Use:               "saturnd",
+		Short:             "Saturn Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 

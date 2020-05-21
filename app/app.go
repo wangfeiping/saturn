@@ -25,20 +25,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+
+	"github.com/wangfeiping/saturn/x/ace"
 )
 
-const appName = "app"
+const appName = "saturn_ace"
 
 var (
 	// TODO: rename your cli
 
 	// DefaultCLIHome default home directories for the application CLI
-	DefaultCLIHome = os.ExpandEnv("$HOME/.appli")
+	DefaultCLIHome = os.ExpandEnv("$HOME/.saturncli/ace")
 
 	// TODO: rename your daemon
 
 	// DefaultNodeHome sets the folder where the applcation data and configuration will be stored
-	DefaultNodeHome = os.ExpandEnv("$HOME/.appd")
+	DefaultNodeHome = os.ExpandEnv("$HOME/.saturnd/ace")
 
 	// ModuleBasics The module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -52,7 +54,7 @@ var (
 		params.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
-		// TODO: Add your module(s) AppModuleBasic
+		ace.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -111,7 +113,7 @@ type NewApp struct {
 // verify app interface at compile time
 var _ simapp.App = (*NewApp)(nil)
 
-// Newgithub.com/wangfeiping/saturnApp is a constructor function for github.com/wangfeiping/saturnApp
+// NewInitApp is a constructor function for app
 func NewInitApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
 	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp),
@@ -220,7 +222,7 @@ func NewInitApp(
 		// TODO: Add your module(s)
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
-
+		ace.NewAppModule(ace.Keeper{}),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the

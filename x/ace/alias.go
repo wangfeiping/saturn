@@ -1,8 +1,8 @@
 package ace
 
 import (
-	"github.com/wangfeiping/github.com/wangfeiping/saturn/x/ace/keeper"
-	"github.com/wangfeiping/github.com/wangfeiping/saturn/x/ace/types"
+	"github.com/wangfeiping/saturn/x/ace/keeper"
+	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
 const (
@@ -27,7 +27,7 @@ var (
 	// TODO: Fill out function aliases
 
 	// variable aliases
-	ModuleCdc     = types.ModuleCdc
+	ModuleCdc = types.ModuleCdc
 	// TODO: Fill out variable aliases
 )
 
@@ -36,5 +36,7 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	// TODO: Fill out module types
+	Secret = types.Secret
+	Round  = types.Round
+	Seed   = types.Seed
 )

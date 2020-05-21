@@ -5,6 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
 // NewHandler creates an sdk.Handler for all the ace type messages
@@ -12,31 +14,33 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		// TODO: Define your msg cases
-		// 
-		//Example:
-		// case Msg<Action>:
-		// 	return handleMsg<Action>(ctx, k, msg)
+		case types.MsgAce:
+			return handleMsgAce(ctx, k, msg)
 		default:
-			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName,  msg)
+			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
 		}
 	}
 }
 
-// handle<Action> does x
-func handleMsg<Action>(ctx sdk.Context, k Keeper, msg Msg<Action>) (*sdk.Result, error) {
-	err := k.<Action>(ctx, msg.ValidatorAddr)
-	if err != nil {
-		return nil, err
-	}
+// handleMsgAce handle request
+func handleMsgAce(ctx sdk.Context, k Keeper,
+	msg types.MsgAce) (*sdk.Result, error) {
+	// err := k.<Action>(ctx, msg.ValidatorAddr)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	// TODO: Define your msg events
+	fmt.Printf("handle ace msg: %s %s\n", msg.AceHash, msg.Func)
+
+	// Define msg-ace events
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.ValidatorAddr.String()),
+			sdk.NewAttribute(sdk.AttributeKeyModule,
+				types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeySender,
+				msg.Address.String()),
 		),
 	)
 
