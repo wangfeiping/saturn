@@ -120,10 +120,13 @@ func GetCmdQueryRounds(cdc *codec.Codec) *cobra.Command {
 		Short: "rounds",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
+			var data []byte
+			if len(args) > 0 {
+				data = []byte(args[0])
+			}
 			res, _, err := cliCtx.QueryWithData(
 				fmt.Sprintf("custom/%s/%s",
-					types.QuerierRoute, types.QueryRounds), nil)
+					types.QuerierRoute, types.QueryRounds), data)
 			if err != nil {
 				fmt.Printf("query secret error: %v\n", err.Error())
 				return nil

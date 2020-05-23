@@ -14,28 +14,43 @@ import (
 // GetRound returns the total set of ace plays.
 func (k Keeper) GetRound(ctx sdk.Context, start, end string) ([]types.Play, error) {
 	store := ctx.KVStore(k.storeKey)
-	// byteStart := []byte(start)
-	// byteEnd := []byte(end)
-	// it := store.Iterator(byteStart, byteEnd)
-	// defer it.Close()
+	// byteStart := []byte("LuckyAce-LuckyAce-30-:cosmos1afaq874drmzn8lg00jmzlsn2lwdkk5qwhgdjnx")
+	// byteEnd := []byte("LuckyAce-LuckyAce-30-:cosmos1ah0pfkn6kwuj24ks2uqqu8m387ffwnm7fvsugm")
+	byteStart := []byte(start)
+	byteEnd := []byte(end)
+	it := store.Iterator(byteStart, byteEnd)
+	// it := store.Iterator(nil, nil)
+	defer it.Close()
 
 	var round []types.Play
-	// for it.Valid() {
-	// 	it.Next()
-	// 	var play types.Play
-	// 	err := k.cdc.UnmarshalBinaryLengthPrefixed(it.Value(), &play)
-	// 	if err != nil {
-	// 		fmt.Printf("get round error: %v\n", err)
-	// 		return nil, err
-	// 	}
-	// 	round = append(round, play)
-	// }
+	for it.Valid() {
+		// it.Next()
+		// fmt.Printf("get key: %s\n", string(it.Key()))
+		// fmt.Printf("get play: %s\n", string(it.Value()))
+		var play types.Play
+		err := k.cdc.UnmarshalBinaryLengthPrefixed(it.Value(), &play)
+		if err != nil {
+			fmt.Printf("get round error: %v\n", err)
+			return nil, err
+		}
+		round = append(round, play)
 
+		it.Next()
+	}
+
+	return round, nil
+}
+
+// GetPlay returns the play of ace.
+func (k Keeper) GetPlay(ctx sdk.Context, key string) ([]types.Play, error) {
+	store := ctx.KVStore(k.storeKey)
+
+	var round []types.Play
 	var play types.Play
 	err := k.cdc.UnmarshalBinaryLengthPrefixed(
-		store.Get([]byte("LuckyAce-LuckyAce-30-:cosmos1ah0pfkn6kwuj24ks2uqqu8m387ffwnm7fvsugm")), &play)
+		store.Get([]byte(key)), &play)
 	if err != nil {
-		fmt.Printf("get round error: %v\n", err)
+		fmt.Printf("get play error: %v\n", err)
 		return nil, err
 	}
 	round = append(round, play)

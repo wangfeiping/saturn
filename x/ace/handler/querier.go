@@ -28,7 +28,7 @@ func NewQuerier(k keeper.Keeper) sdk.Querier {
 		case types.QueryGames:
 			return queryGames(ctx, k, &req)
 		case types.QueryRounds:
-			return queryRounds(ctx, k)
+			return queryRounds(ctx, k, &req)
 		case types.QueryPlayers:
 			return queryPlayers(ctx, k)
 		default:
@@ -115,13 +115,19 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 	return res, nil
 }
 
-func queryRounds(ctx sdk.Context, k keeper.Keeper) ([]byte, error) {
+func queryRounds(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byte, error) {
 	// round := []types.Play{
 	// 	types.Play{Address: "aaaaaa", Func: "draw", Args: "100chip"},
 	// 	types.Play{Address: "bbbbbb", Func: "draw", Args: "1000chip"},
 	// 	types.Play{Address: "cccccc", Func: "draw", Args: "10chip"}}
 
-	round, err := k.GetRound(ctx, "LuckyAce-LuckyAce-30", "LuckyAce-LuckyAce-31")
+	var round []types.Play
+	var err error
+	if len(req.Data) > 0 {
+		round, err = k.GetPlay(ctx, string(req.Data))
+	} else {
+		round, err = k.GetRound(ctx, "LuckyAce-LuckyAce-30", "LuckyAce-LuckyAce-31")
+	}
 	if err != nil {
 		fmt.Printf("query round error: %v\n", err)
 	}
