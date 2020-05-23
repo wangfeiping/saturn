@@ -38,6 +38,6 @@ type (
 	Params       = types.Params
 
 	Secret = types.Secret
-	Round  = types.Round
+	Play   = types.Play
 	Seed   = types.Seed
 )

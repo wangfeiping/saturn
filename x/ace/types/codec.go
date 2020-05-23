@@ -10,7 +10,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgPlay{}, "Saturn/MsgPlay", nil)
 	cdc.RegisterConcrete(Secret{}, "Saturn/Secret", nil)
 	cdc.RegisterConcrete(Game{}, "Saturn/Game", nil)
-	cdc.RegisterConcrete(Round{}, "Saturn/Round", nil)
+	cdc.RegisterConcrete(Play{}, "Saturn/Play", nil)
 }
 
 // ModuleCdc defines the module codec

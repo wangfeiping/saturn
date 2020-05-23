@@ -18,11 +18,11 @@ type Keeper struct {
 }
 
 // NewKeeper creates a ace keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace types.ParamSubspace) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) Keeper {
 	keeper := Keeper{
-		storeKey:   key,
-		cdc:        cdc,
-		paramspace: paramspace.WithKeyTable(types.ParamKeyTable()),
+		storeKey: key,
+		cdc:      cdc,
+		// paramspace: paramspace.WithKeyTable(types.ParamKeyTable()),
 	}
 	return keeper
 }

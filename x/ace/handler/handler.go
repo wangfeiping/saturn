@@ -16,9 +16,11 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
 		case types.MsgPlay:
+			fmt.Println("handle play msg")
 			return handleMsgPlay(ctx, k, msg)
-		// case types.MsgAce:
-
+		case types.MsgAce:
+			fmt.Println("handle ace msg")
+			return nil, fmt.Errorf("not support")
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -29,10 +31,17 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 // handleMsgPlay handle request
 func handleMsgPlay(ctx sdk.Context, k keeper.Keeper,
 	m types.MsgPlay) (*sdk.Result, error) {
-	// err := k.<Action>(ctx, msg.ValidatorAddr)
-	// if err != nil {
-	// 	return nil, err
-	// }
+
+	play := types.Play{
+		AceID:   m.AceID,
+		GameID:  m.GameID,
+		RoundID: m.RoundID,
+		Address: m.Address.String(),
+		Seed:    m.Seed,
+		Func:    m.Func,
+		Args:    m.Args}
+	k.SetPlay(ctx, fmt.Sprintf("%s-%s-%s:%s",
+		play.AceID, play.GameID, play.RoundID, play.Address), play)
 
 	fmt.Printf("handle play msg: %d - %s %s %s\n", ctx.BlockHeight(),
 		m.AceID, m.Func, m.Args)

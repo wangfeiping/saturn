@@ -10,7 +10,7 @@ import (
 var _ sdk.Msg = &MsgAce{}
 var _ sdk.Msg = &MsgPlay{}
 
-// MsgAce - struct for one-step-play request of game
+// MsgAce - struct for update request of ace
 type MsgAce struct {
 	Address sdk.AccAddress `json:"address" yaml:"address"`
 }
@@ -51,7 +51,7 @@ type MsgPlay struct {
 	AceID   string         `json:"ace_id" yaml:"ace_id"`
 	GameID  string         `json:"game_id" yaml:"game_id"`
 	RoundID string         `json:"round_id" yaml:"round_id"`
-	Seed    *Seed          `json:"seed" yaml:"seed"` // random seed
+	Seed    Seed           `json:"seed" yaml:"seed"` // random seed
 	Func    string         `json:"func" yaml:"func"`
 	Args    string         `json:"args" yaml:"args"`
 	Address sdk.AccAddress `json:"address" yaml:"address"`
@@ -66,7 +66,7 @@ func NewMsgPlay(
 		AceID:   aceID,
 		GameID:  gameID,
 		RoundID: roundID,
-		Seed:    seed,
+		Seed:    *seed,
 		Func:    function,
 		Args:    args,
 		Address: addr}, nil

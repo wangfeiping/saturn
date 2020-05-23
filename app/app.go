@@ -27,6 +27,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
 	"github.com/wangfeiping/saturn/x/ace"
+	"github.com/wangfeiping/saturn/x/ace/keeper"
 )
 
 const appName = "saturn_ace"
@@ -128,7 +129,8 @@ func NewInitApp(
 
 	// TODO: Add the keys that module requires
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
-		supply.StoreKey, distr.StoreKey, slashing.StoreKey, params.StoreKey)
+		supply.StoreKey, distr.StoreKey, slashing.StoreKey,
+		params.StoreKey, ace.StoreKey)
 
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -219,10 +221,9 @@ func NewInitApp(
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
-		// TODO: Add your module(s)
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
-		ace.NewAppModule(ace.Keeper{}),
+		// ace.NewAppModule(ace.Keeper{}),
+		ace.NewAppModule(keeper.NewKeeper(app.cdc, keys[ace.StoreKey])),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the

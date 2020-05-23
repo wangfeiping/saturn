@@ -73,9 +73,10 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 		seq = "0"
 	}
 	lkGame := types.Game{
-		AceID:  "LuckyAce",
-		GameID: fmt.Sprintf("LuckyAce-%s", seq),
-		Type:   "melee",
+		AceID:       "LuckyAce",
+		GameID:      fmt.Sprintf("LuckyAce-%s", seq),
+		Type:        "melee",
+		IsGroupGame: false,
 		Info: `
 ####################################################
 # Welcome! Wish you get the lucky ace!             # 
@@ -89,6 +90,7 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 		if !strings.EqualFold(lkGame.AceID, name) {
 			lkGame.AceID = ""
 			lkGame.Type = ""
+			lkGame.IsGroupGame = false
 			lkGame.GameID = ""
 			lkGame.Info = ""
 		}
@@ -101,9 +103,10 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 	games := []types.Game{
 		lkGame,
 		types.Game{
-			AceID: "Texas",
-			Type:  "not_ready",
-			Info:  `not ready`}}
+			AceID:       "Texas",
+			Type:        "not_ready",
+			IsGroupGame: true,
+			Info:        `not ready`}}
 	res, err := codec.MarshalJSONIndent(types.ModuleCdc, games)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
@@ -113,13 +116,17 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 }
 
 func queryRounds(ctx sdk.Context, k keeper.Keeper) ([]byte, error) {
-	// params := k.GetParams(ctx)
+	// round := []types.Play{
+	// 	types.Play{Address: "aaaaaa", Func: "draw", Args: "100chip"},
+	// 	types.Play{Address: "bbbbbb", Func: "draw", Args: "1000chip"},
+	// 	types.Play{Address: "cccccc", Func: "draw", Args: "10chip"}}
 
-	rounds := []types.Round{
-		types.Round{Address: "aaaaaa", Func: "draw", Args: "100chip"},
-		types.Round{Address: "bbbbbb", Func: "draw", Args: "1000chip"},
-		types.Round{Address: "cccccc", Func: "draw", Args: "10chip"}}
-	res, err := codec.MarshalJSONIndent(types.ModuleCdc, rounds)
+	round, err := k.GetRound(ctx, "LuckyAce-LuckyAce-30", "LuckyAce-LuckyAce-31")
+	if err != nil {
+		fmt.Printf("query round error: %v\n", err)
+	}
+
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, round)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

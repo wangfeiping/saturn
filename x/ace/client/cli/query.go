@@ -97,14 +97,16 @@ func GetCmdQueryGames(cdc *codec.Codec) *cobra.Command {
 				cdc.MustUnmarshalJSON(res, &out)
 				// return cliCtx.PrintOutput(out)
 				for _, g := range out {
-					fmt.Printf("Game: %s\t%s\t%s\n", g.AceID, g.Type, g.GameID)
+					fmt.Printf("Game       : %s\t%s\t%s\n", g.AceID, g.Type, g.GameID)
+					fmt.Printf("IsGroupGame: %t\n", g.IsGroupGame)
 				}
 				return nil
 			}
 			var out types.Game
 			cdc.MustUnmarshalJSON(res, &out)
 			fmt.Println(out.Info)
-			fmt.Printf("Game: %s\t%s\t%s\n\n", out.AceID, out.Type, out.GameID)
+			fmt.Printf("Game       : %s\t%s\t%s\n", out.AceID, out.Type, out.GameID)
+			fmt.Printf("IsGroupGame: %t\n", out.IsGroupGame)
 			// return cliCtx.PrintOutput(out)
 			return nil
 		},
@@ -127,7 +129,7 @@ func GetCmdQueryRounds(cdc *codec.Codec) *cobra.Command {
 				return nil
 			}
 
-			var out []types.Round
+			var out []types.Play
 			cdc.MustUnmarshalJSON(res, &out)
 
 			home := viper.GetString(flags.FlagHome)
@@ -160,10 +162,12 @@ func GetCmdQueryPlayers(cdc *codec.Codec) *cobra.Command {
 				fmt.Printf("query players error: %v\n", err.Error())
 				return nil
 			}
+			fmt.Printf("query players: %s", string(res))
 
-			var out types.Round
-			cdc.MustUnmarshalJSON(res, &out)
-			return cliCtx.PrintOutput(out)
+			// var out types.Round
+			// cdc.MustUnmarshalJSON(res, &out)
+			// return cliCtx.PrintOutput(out)
+			return nil
 		},
 	}
 }

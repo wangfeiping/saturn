@@ -53,10 +53,12 @@ func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 				NewCLIContextWithInputAndFrom(
 					inBuf, address).WithCodec(cdc)
 
+			// msg, err := types.NewMsgAce(cliCtx.GetFromAddress())
 			msg, err := types.NewMsgPlay(
-				"LuckyAce", "lucky-game-id", "lucky-round-id",
+				"LuckyAce", "LuckyAce-30", "",
 				seed, "draw", argsStr,
 				cliCtx.GetFromAddress())
+
 			if err != nil {
 				fmt.Printf("new msg error: %v\n", err)
 				return err

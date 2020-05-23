@@ -6,8 +6,11 @@ type Seed struct {
 	SecurityHash []byte
 }
 
-// Round struct for game play
-type Round struct {
+// Play struct for game one-step-play
+type Play struct {
+	AceID   string
+	GameID  string
+	RoundID string
 	Address string
 	Seed    Seed
 	Func    string
