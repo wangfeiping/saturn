@@ -7,7 +7,9 @@ import (
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgAce{}, "Saturn/MsgAce", nil)
+	cdc.RegisterConcrete(MsgPlay{}, "Saturn/MsgPlay", nil)
 	cdc.RegisterConcrete(Secret{}, "Saturn/Secret", nil)
+	cdc.RegisterConcrete(Game{}, "Saturn/Game", nil)
 	cdc.RegisterConcrete(Round{}, "Saturn/Round", nil)
 }
 

@@ -30,6 +30,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	aceQueryCmd.AddCommand(
 		flags.GetCommands(
 			GetCmdQuerySecret(cdc),
+			GetCmdQueryGames(cdc),
 			GetCmdQueryRounds(cdc),
 			GetCmdQueryPlayers(cdc),
 		)...,
@@ -68,6 +69,44 @@ func GetCmdQuerySecret(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+// GetCmdQueryGames queries infomations of game
+func GetCmdQueryGames(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "games",
+		Short: "games",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			var data []byte
+			if len(args) > 0 {
+				data = []byte(args[0])
+			}
+			res, _, err := cliCtx.QueryWithData(
+				fmt.Sprintf("custom/%s/%s",
+					types.QuerierRoute, types.QueryGames), data)
+			if err != nil {
+				fmt.Printf("query game error: %v\n", err.Error())
+				return nil
+			}
+			// fmt.Println("result: " + string(res))
+			if data == nil {
+				var out []types.Game
+				cdc.MustUnmarshalJSON(res, &out)
+				// return cliCtx.PrintOutput(out)
+				for _, g := range out {
+					fmt.Printf("Game: %s\t%s\t%s\n", g.AceID, g.Type, g.GameID)
+				}
+				return nil
+			}
+			var out types.Game
+			cdc.MustUnmarshalJSON(res, &out)
+			fmt.Println(out.Info)
+			fmt.Printf("Game: %s\t%s\t%s\n\n", out.AceID, out.Type, out.GameID)
+			// return cliCtx.PrintOutput(out)
+			return nil
 		},
 	}
 }

@@ -1,6 +1,7 @@
 package ace
 
 import (
+	"github.com/wangfeiping/saturn/x/ace/handler"
 	"github.com/wangfeiping/saturn/x/ace/keeper"
 	"github.com/wangfeiping/saturn/x/ace/types"
 )
@@ -19,7 +20,7 @@ const (
 var (
 	// functions aliases
 	NewKeeper           = keeper.NewKeeper
-	NewQuerier          = keeper.NewQuerier
+	NewQuerier          = handler.NewQuerier
 	RegisterCodec       = types.RegisterCodec
 	NewGenesisState     = types.NewGenesisState
 	DefaultGenesisState = types.DefaultGenesisState

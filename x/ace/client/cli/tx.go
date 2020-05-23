@@ -27,23 +27,24 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	aceTxCmd.AddCommand(flags.PostCommands(
-		getAceTxCmd(cdc),
+		GetCmdTxPlay(cdc),
 	)...)
 
 	return aceTxCmd
 }
 
-// getAceTxCmd is the CLI command for sending ace Tx
-func getAceTxCmd(cdc *codec.Codec) *cobra.Command {
+// GetCmdTxPlay is the CLI command for sending play Tx
+func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "play [func] [arg1,arg2,...] [seed] [address]",
-		Short: "send a ace Tx(request of game play)",
+		Short: "send a Tx(request for a one-step-play command)",
 		Args:  cobra.ExactArgs(4), // Does your request require arguments
 		RunE: func(cmd *cobra.Command, args []string) error {
 			function := args[0]
 			argsStr := args[1]
 			seed := &types.Seed{Seed: []byte(args[2])}
 			address := args[3]
+			fmt.Printf("play: %s %s\n", function, argsStr)
 
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).
@@ -52,9 +53,9 @@ func getAceTxCmd(cdc *codec.Codec) *cobra.Command {
 				NewCLIContextWithInputAndFrom(
 					inBuf, address).WithCodec(cdc)
 
-			msg, err := types.NewMsgAce(
-				"LuckyAce", seed,
-				function, argsStr,
+			msg, err := types.NewMsgPlay(
+				"LuckyAce", "lucky-game-id", "lucky-round-id",
+				seed, "draw", argsStr,
 				cliCtx.GetFromAddress())
 			if err != nil {
 				fmt.Printf("new msg error: %v\n", err)

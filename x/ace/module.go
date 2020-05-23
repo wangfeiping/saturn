@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/wangfeiping/saturn/x/ace/client/cli"
 	"github.com/wangfeiping/saturn/x/ace/client/rest"
+	"github.com/wangfeiping/saturn/x/ace/handler"
 )
 
 // Type check to ensure the interface is properly implemented
@@ -100,7 +101,7 @@ func (AppModule) Route() string {
 
 // NewHandler returns an sdk.Handler for the ace module.
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return handler.NewHandler(am.keeper)
 }
 
 // QuerierRoute returns the ace module's querier route name.
