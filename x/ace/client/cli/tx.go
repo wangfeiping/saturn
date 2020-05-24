@@ -36,15 +36,16 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdTxPlay is the CLI command for sending play Tx
 func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "play [func] [arg1,arg2,...] [seed] [address]",
-		Short: "send a Tx(request for a one-step-play command)",
-		Args:  cobra.ExactArgs(4), // Does your request require arguments
+		Use:   "play [game-ace-id] [func] [arg1,arg2,...] [seed] [address]",
+		Short: "send a Tx(command of one-step-play for a game)",
+		Args:  cobra.ExactArgs(5), // Does your request require arguments
 		RunE: func(cmd *cobra.Command, args []string) error {
-			function := args[0]
-			argsStr := args[1]
-			seed := &types.Seed{Seed: []byte(args[2])}
-			address := args[3]
-			fmt.Printf("play: %s %s\n", function, argsStr)
+			aceID := args[0]
+			function := args[1]
+			argsStr := args[2]
+			seed := &types.Seed{Seed: []byte(args[3])}
+			address := args[4]
+			fmt.Printf("play: %s %s %s\n", aceID, function, argsStr)
 
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).
@@ -53,22 +54,42 @@ func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 				NewCLIContextWithInputAndFrom(
 					inBuf, address).WithCodec(cdc)
 
+			// query game id
+			res, _, err := cliCtx.QueryWithData(
+				fmt.Sprintf("custom/%s/%s",
+					types.QuerierRoute, types.QueryGames), []byte(aceID))
+			if err != nil {
+				fmt.Printf("query game error: %v\n", err.Error())
+				return nil
+			}
+			var out types.Game
+			cdc.MustUnmarshalJSON(res, &out)
+			fmt.Println(out.Info)
+			fmt.Printf("Game       : %s\t%s\t%s\n", out.AceID, out.Type, out.GameID)
+			fmt.Printf("IsGroupGame: %t\n", out.IsGroupGame)
+
+			// create, sign and send play Tx
 			// msg, err := types.NewMsgAce(cliCtx.GetFromAddress())
 			msg, err := types.NewMsgPlay(
-				"LuckyAce", "LuckyAce-30", "",
+				aceID, out.GameID, "",
 				seed, "draw", argsStr,
 				cliCtx.GetFromAddress())
 
 			if err != nil {
-				fmt.Printf("new msg error: %v\n", err)
+				fmt.Printf("create play message error: %v\n", err)
 				return err
 			}
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			err = utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			if err != nil {
+				fmt.Printf("send play Tx error: %v\n", err)
+			} else {
+				fmt.Printf("Ok!")
+			}
+			return err
 		},
 	}
 }

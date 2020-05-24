@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -32,6 +33,16 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 func handleMsgPlay(ctx sdk.Context, k keeper.Keeper,
 	m types.MsgPlay) (*sdk.Result, error) {
 
+	h, err := strconv.ParseInt(m.GameID, 10, 64)
+	if err != nil {
+		fmt.Printf("wrong game id: %s %v\n", m.GameID, err)
+		return nil, err
+	}
+	if h <= ctx.BlockHeight()-types.GameDurationHeight {
+		err = fmt.Errorf("game is over: %d current: %d", h, ctx.BlockHeight())
+		fmt.Println(err.Error())
+		return nil, err
+	}
 	play := types.Play{
 		AceID:   m.AceID,
 		GameID:  m.GameID,

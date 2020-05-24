@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -74,7 +75,7 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 	}
 	lkGame := types.Game{
 		AceID:       "LuckyAce",
-		GameID:      fmt.Sprintf("LuckyAce-%s", seq),
+		GameID:      seq,
 		Type:        "melee",
 		IsGroupGame: false,
 		Info: `
@@ -121,15 +122,23 @@ func queryRounds(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]by
 	// 	types.Play{Address: "bbbbbb", Func: "draw", Args: "1000chip"},
 	// 	types.Play{Address: "cccccc", Func: "draw", Args: "10chip"}}
 
-	var round []types.Play
 	var err error
-	if len(req.Data) > 0 {
-		round, err = k.GetPlay(ctx, string(req.Data))
-	} else {
-		round, err = k.GetRound(ctx, "LuckyAce-LuckyAce-30", "LuckyAce-LuckyAce-31")
+	if len(req.Data) == 0 {
+		err = errors.New("need game id")
+		fmt.Println(err.Error())
+		return nil, err
 	}
+	var h int64
+	h, err = strconv.ParseInt(string(req.Data), 10, 64)
+	if err != nil {
+		fmt.Printf("wrong game id: %s %v\n", string(req.Data), err)
+		return nil, err
+	}
+	round, err := k.GetRound(ctx,
+		fmt.Sprintf("LuckyAce-%d", h), fmt.Sprintf("LuckyAce-%d", h+1))
 	if err != nil {
 		fmt.Printf("query round error: %v\n", err)
+		return nil, err
 	}
 
 	res, err := codec.MarshalJSONIndent(types.ModuleCdc, round)
