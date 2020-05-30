@@ -15,6 +15,7 @@ import (
 	"github.com/wangfeiping/saturn/x/ace/client/cli"
 	"github.com/wangfeiping/saturn/x/ace/client/rest"
 	"github.com/wangfeiping/saturn/x/ace/handler"
+	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
 // Type check to ensure the interface is properly implemented
@@ -72,17 +73,16 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 // AppModule implements an application module for the ace module.
 type AppModule struct {
 	AppModuleBasic
-
 	keeper Keeper
-	// TODO: Add keepers that your application depends on
+	bank   types.BankKeeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(k Keeper /*TODO: Add Keepers that your application depends on*/) AppModule {
+func NewAppModule(k Keeper, bank types.BankKeeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
-		// TODO: Add keepers that your application depends on
+		bank:           bank,
 	}
 }
 
@@ -101,7 +101,7 @@ func (AppModule) Route() string {
 
 // NewHandler returns an sdk.Handler for the ace module.
 func (am AppModule) NewHandler() sdk.Handler {
-	return handler.NewHandler(am.keeper)
+	return handler.NewHandler(am.keeper, am.bank)
 }
 
 // QuerierRoute returns the ace module's querier route name.

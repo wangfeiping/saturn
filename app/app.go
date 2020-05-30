@@ -223,7 +223,7 @@ func NewInitApp(
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		// ace.NewAppModule(ace.Keeper{}),
-		ace.NewAppModule(keeper.NewKeeper(app.cdc, keys[ace.StoreKey])),
+		ace.NewAppModule(keeper.NewKeeper(app.cdc, keys[ace.StoreKey]), app.bankKeeper),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
