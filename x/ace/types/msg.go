@@ -12,12 +12,20 @@ var _ sdk.Msg = &MsgPlay{}
 
 // MsgAce - struct for update request of ace
 type MsgAce struct {
+	AceID   string         `json:"ace_id" yaml:"ace_id"`
+	GameID  string         `json:"game_id" yaml:"game_id"`
+	Action  string         `json:"action" yaml:"action"` // start, pause, cancel, end
 	Address sdk.AccAddress `json:"address" yaml:"address"`
 }
 
 // NewMsgAce creates a new MsgAce instance
-func NewMsgAce(addr sdk.AccAddress) (*MsgAce, error) {
-	return &MsgAce{Address: addr}, nil
+func NewMsgAce(aceID, gameID, action string,
+	addr sdk.AccAddress) (*MsgAce, error) {
+	return &MsgAce{
+		AceID:   aceID,
+		GameID:  gameID,
+		Action:  action,
+		Address: addr}, nil
 }
 
 // Route returns the name of module
@@ -60,13 +68,13 @@ type MsgPlay struct {
 // NewMsgPlay creates a new MsgPlay instance
 func NewMsgPlay(
 	aceID, gameID, roundID string,
-	seed *Seed, function, args string,
+	seed Seed, function, args string,
 	addr sdk.AccAddress) (*MsgPlay, error) {
 	return &MsgPlay{
 		AceID:   aceID,
 		GameID:  gameID,
 		RoundID: roundID,
-		Seed:    *seed,
+		Seed:    seed,
 		Func:    function,
 		Args:    args,
 		Address: addr}, nil

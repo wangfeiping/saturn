@@ -79,13 +79,14 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 		Type:        "melee",
 		IsGroupGame: false,
 		Info: `
-####################################################
-# Welcome! Wish you get the lucky ace!             # 
-# Game rules:                                      #
-#     1) A > K > Q > J > ... > 2                   #
-#     2) 2 > A > K ... When no 3, 4 or 5 in cards. #
-#     3) The biggest one is winner.                #
-####################################################`}
+############################################################################
+# Welcome! Wish you get the lucky ace!                                     #
+# Game rules:                                                              #
+#     1) A > K > Q > J > ... > 2                                           #
+#     2) 2 > A > K ... > 6 when no 3, 4 or 5 in cards                      #
+#     3) Spade > Heart > Club > Diamond when the cards are the same number #
+#     3) The biggest one is winner.                                        #
+############################################################################`}
 	if len(req.Data) > 0 {
 		name := string(req.Data)
 		if !strings.EqualFold(lkGame.AceID, name) {

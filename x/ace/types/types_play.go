@@ -15,4 +15,5 @@ type Play struct {
 	Seed    Seed
 	Func    string
 	Args    string
+	Card    int
 }
