@@ -162,10 +162,10 @@ func handleMsgPlay(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 
 func drawCards(plays []types.Play, ctx sdk.Context, k keeper.Keeper) error {
 	num := len(plays)
-	if num < 52 {
-		num = 52
+	if num < 51 {
+		num = 51
 	}
-	// b := make([]byte, 52)
+	// b := make([]byte, 51)
 	// n, err := rand.Read(b)
 	// if err != nil {
 	// 	fmt.Println("gen crypto/rand error: ", err.Error())
@@ -206,10 +206,10 @@ func checkWinner(plays []types.Play) (winners []types.Winner) {
 		winNum = num / 10
 	}
 
-	return sortWinners(plays, winNum)
+	return SortWinners(plays, winNum)
 }
 
-func sortWinners(plays []types.Play, num int) (winners []types.Winner) {
+func SortWinners(plays []types.Play, num int) (winners []types.Winner) {
 	winners = make([]types.Winner, num)
 	exist345 := isExist345(plays)
 	w := types.NewWinners(plays, exist345)
@@ -221,8 +221,8 @@ func sortWinners(plays []types.Play, num int) (winners []types.Winner) {
 }
 
 func checkCardNum(num int) int {
-	if num > 52 {
-		num = num % 52
+	if num > 51 {
+		num = num % 51
 	}
 	return num
 }

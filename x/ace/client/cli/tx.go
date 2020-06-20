@@ -43,7 +43,7 @@ func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 			aceID := args[0]
 			function := args[1]
 			argsStr := args[2]
-			seed := types.Seed{Seed: []byte(args[3])}
+			seed := types.Seed{Hash: []byte(args[3])}
 			address := args[4]
 			fmt.Printf("play: %s %s %s\n", aceID, function, argsStr)
 
@@ -103,7 +103,7 @@ func GetCmdTxEnd(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			aceID := args[0]
 			address := args[1]
-			fmt.Printf("play: %s %s %s\n", aceID, address)
+			fmt.Printf("play: %s %s\n", aceID, address)
 
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).

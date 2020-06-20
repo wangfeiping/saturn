@@ -9,7 +9,8 @@ type Winner struct {
 	AceID   string
 	GameID  string
 	Address string
-	Win     string
+	Chip    Chips
+	Win     Chips
 	Args    map[string]string
 }
 
@@ -41,14 +42,13 @@ func (w Winners) Less(i, j int) bool {
 	cardj := w.plays[j].Card
 	if !w.exist345 {
 		if cardi < 4 {
-			cardi += 52
+			cardi += 51
 		}
 		if cardj < 4 {
-			cardj += 52
+			cardj += 51
 		}
 	}
-
-	return cardi < cardj
+	return cardi > cardj
 }
 
 func (w Winners) GetWinner(i int) Winner {

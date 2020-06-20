@@ -16,3 +16,9 @@ func (s Secret) String() string {
 	return fmt.Sprintf(`{"alg":"%s","pub":"%s","height":"%s"}`,
 		s.Alg, s.Pub, s.Height)
 }
+
+// Seed struct for random seed
+type Seed struct {
+	Alg  string
+	Hash []byte
+}
