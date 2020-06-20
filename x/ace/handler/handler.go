@@ -55,7 +55,9 @@ func NewHandler(k keeper.Keeper, bank types.BankKeeper) sdk.Handler {
 // handleMsgAce handle request
 func handleMsgAce(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 	m types.MsgAce) (*sdk.Result, error) {
-
+	if !strings.EqualFold("end", m.Action) {
+		return nil, fmt.Errorf("not support action: %s", m.Action)
+	}
 	h, err := strconv.ParseInt(m.GameID, 10, 64)
 	if err != nil {
 		fmt.Printf("wrong game id: %s %v\n", m.GameID, err)

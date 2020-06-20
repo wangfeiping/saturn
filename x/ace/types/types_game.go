@@ -20,3 +20,8 @@ type Play struct {
 	Args    string
 	Card    int
 }
+
+type Chips struct {
+	Amount int
+	Denom  string
+}
