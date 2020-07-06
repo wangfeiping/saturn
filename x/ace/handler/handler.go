@@ -69,13 +69,15 @@ func handleMsgAce(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 		return nil, err
 	}
 
+	// TODO A large number of TXs processing optimizations
 	plays, err := k.GetRound(ctx,
-		fmt.Sprintf("LuckyAce-%d", h), fmt.Sprintf("LuckyAce-%d", h+1))
+		fmt.Sprintf("%s-%d", types.AceID, h), fmt.Sprintf("%s-%d", types.AceID, h+1))
 	if err != nil {
 		fmt.Printf("query round error: %v\n", err)
 		return nil, err
 	}
 
+	// TODO Random Seed function to be implemented
 	err = drawCards(plays, ctx, k)
 	if err != nil {
 		fmt.Printf("drawing cards error: %v\n", err)
@@ -87,7 +89,11 @@ func handleMsgAce(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 		fmt.Printf("winner: %s\n", w.Address)
 	}
 
-	// awardToWinners(winners)
+	err = AwardToWinners(winners, len(plays), bank)
+	if err != nil {
+		fmt.Printf("award to winners error: %v\n", err)
+		return nil, err
+	}
 
 	// Define msg-ace events
 	ctx.EventManager().EmitEvent(
@@ -118,7 +124,9 @@ func handleMsgPlay(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 		fmt.Println(err.Error())
 		return nil, err
 	}
+	// TODO How to get the TX's hash, Resolving conflicts over play TXs
 	play := types.Play{
+		// TxHash:  ,
 		AceID:   m.AceID,
 		GameID:  m.GameID,
 		RoundID: m.RoundID,
@@ -128,19 +136,18 @@ func handleMsgPlay(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 		Args:    m.Args}
 	k.SetPlay(ctx, fmt.Sprintf("%s-%s-%s:%s",
 		play.AceID, play.GameID, play.RoundID, play.Address), play)
-	args := strings.Split(play.Args, ",")
-	coins, err := sdk.ParseCoins(args[0])
+	// args := strings.Split(play.Args, ",")
+	coins, err := sdk.ParseCoins("1chip")
 	if err != nil {
 		fmt.Println("parse coins error: " + err.Error())
 		return nil, err
 	}
-	bankerAddr := "cosmos1kl86mq7264f8x4pumdk7la7w5svm8lep6626vz"
-	banker, err := sdk.AccAddressFromBech32(bankerAddr)
+	pooler, err := sdk.AccAddressFromBech32(types.PoolerAddress)
 	if err != nil {
-		fmt.Println("parse dealer's address error: " + err.Error())
+		fmt.Println("parse pooler's address error: " + err.Error())
 		return nil, err
 	}
-	err = bank.SendCoins(ctx, m.Address, banker, coins)
+	err = bank.SendCoins(ctx, m.Address, pooler, coins)
 	if err != nil {
 		fmt.Println("send coins error: " + err.Error())
 		return nil, err
@@ -160,6 +167,85 @@ func handleMsgPlay(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 	)
 
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
+
+// AwardToWinners launches transfers to all winners
+func AwardToWinners(winners []types.Winner, playsNum int, bank types.BankKeeper) error {
+	winNum := len(winners)
+	if winNum == 0 {
+		return nil
+	}
+
+	pooler, err := sdk.AccAddressFromBech32(types.PoolerAddress)
+	if err != nil {
+		fmt.Println("parse pooler's address error: " + err.Error())
+		return err
+	}
+
+	if winNum == 1 {
+		// only one winner
+		// gold := 10
+		return awardsTo(winners, playsNum, pooler, bank)
+	}
+
+	if winNum == 2 {
+		// gold: 1, silver: 1 when 2 winners in all.
+		// gold, silver := 6, 4
+		goldAwards := playsNum * 6 / 10
+		err = awardsTo(winners[0:1], goldAwards, pooler, bank)
+		if err != nil {
+			return err
+		}
+		silverAwards := playsNum - goldAwards
+		return awardsTo(winners[1:], silverAwards, pooler, bank)
+	}
+
+	winNum = winNum - 1
+	silverIndex := winNum / 3
+	if silverIndex < 1 {
+		silverIndex = 1
+	}
+	silverIndex++
+	// gold, silver, copper := 5, 3, 2
+	goldAwards := playsNum * 5 / 10
+	err = awardsTo(winners[0:1], goldAwards, pooler, bank)
+	if err != nil {
+		return err
+	}
+	silverAwards := playsNum * 3 / 10
+	err = awardsTo(winners[1:silverIndex], silverAwards, pooler, bank)
+	if err != nil {
+		return err
+	}
+	copperAwards := playsNum - goldAwards - silverAwards
+	return awardsTo(winners[silverIndex:], copperAwards, pooler, bank)
+}
+
+func awardsTo(winners []types.Winner, chips int,
+	pooler sdk.AccAddress, bank types.BankKeeper) error {
+	pcs := chips * 1000000
+	fmt.Printf("awards to: winners %d; awards chips %d, pcs %d\n",
+		len(winners), chips, pcs)
+
+	// allCoins := make(sdk.Coins, 1)
+	// chips, err := sdk.NewCoin("chip", playsNum)
+	// if err != nil {
+	// 	fmt.Println("parse coins error: " + err.Error())
+	// 	return nil, err
+	// }
+	// allCoins[0] = chips
+
+	// goldAddr, err := sdk.AccAddressFromBech32(winners[0].Address)
+	// if err != nil {
+	// 	fmt.Println("parse winner's address error: " + err.Error())
+	// 	return nil, err
+	// }
+	// err = bank.SendCoins(ctx, pooler, goldAddr, allCoins)
+	// if err != nil {
+	// 	fmt.Println("award to winner error: " + err.Error())
+	// 	return err
+	// }
+	return nil
 }
 
 func drawCards(plays []types.Play, ctx sdk.Context, k keeper.Keeper) error {
@@ -207,7 +293,7 @@ func checkWinner(plays []types.Play) (winners []types.Winner) {
 	} else {
 		winNum = num / 10
 	}
-
+	fmt.Printf("total: %d; winners: %d\n", num, winNum)
 	return SortWinners(plays, winNum)
 }
 

@@ -11,6 +11,7 @@ type Game struct {
 
 // Play struct for game one-step-play
 type Play struct {
+	TxHash  string
 	AceID   string
 	GameID  string
 	RoundID string

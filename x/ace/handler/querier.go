@@ -74,7 +74,7 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 		seq = "0"
 	}
 	lkGame := types.Game{
-		AceID:       "LuckyAce",
+		AceID:       types.AceID,
 		GameID:      seq,
 		Type:        "melee",
 		IsGroupGame: false,
@@ -136,7 +136,7 @@ func queryRounds(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]by
 		return nil, err
 	}
 	round, err := k.GetRound(ctx,
-		fmt.Sprintf("LuckyAce-%d", h), fmt.Sprintf("LuckyAce-%d", h+1))
+		fmt.Sprintf("%s-%d", types.AceID, h), fmt.Sprintf("%s-%d", types.AceID, h+1))
 	if err != nil {
 		fmt.Printf("query round error: %v\n", err)
 		return nil, err
