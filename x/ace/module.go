@@ -73,12 +73,12 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 // AppModule implements an application module for the ace module.
 type AppModule struct {
 	AppModuleBasic
-	keeper Keeper
+	keeper AceKeeper
 	bank   types.BankKeeper
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(k Keeper, bank types.BankKeeper) AppModule {
+func NewAppModule(k AceKeeper, bank types.BankKeeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,

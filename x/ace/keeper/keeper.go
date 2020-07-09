@@ -10,16 +10,16 @@ import (
 	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
-// Keeper of the ace store
-type Keeper struct {
-	storeKey   sdk.StoreKey
-	cdc        *codec.Codec
-	paramspace types.ParamSubspace
+// AceKeeper of the ace store
+type AceKeeper struct {
+	storeKey sdk.StoreKey
+	cdc      *codec.Codec
+	// paramspace types.ParamSubspace
 }
 
 // NewKeeper creates a ace keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) Keeper {
-	keeper := Keeper{
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) AceKeeper {
+	keeper := AceKeeper{
 		storeKey: key,
 		cdc:      cdc,
 		// paramspace: paramspace.WithKeyTable(types.ParamKeyTable()),
@@ -28,26 +28,30 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) Keeper {
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+func (k AceKeeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// Get the entire Ace metadata struct for a key
-func (k Keeper) Get(ctx sdk.Context, key string) (types.Secret, error) {
-	store := ctx.KVStore(k.storeKey)
-	var item types.Secret
-	byteKey := []byte(key)
-	err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(byteKey), &item)
-	return item, err
-}
-
-func (k Keeper) set(ctx sdk.Context, key string, value types.Secret) {
+func (k AceKeeper) Set(ctx sdk.Context, key string, value interface{}) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(value)
 	store.Set([]byte(key), bz)
 }
 
-func (k Keeper) delete(ctx sdk.Context, key string) {
+func (k AceKeeper) Has(ctx sdk.Context, key string) bool {
+	store := ctx.KVStore(k.storeKey)
+	return store.Has([]byte(key))
+}
+
+// Get the entire Ace metadata struct for a key
+func (k AceKeeper) Get(ctx sdk.Context, key string, ptr interface{}) error {
+	store := ctx.KVStore(k.storeKey)
+	byteKey := []byte(key)
+	err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(byteKey), ptr)
+	return err
+}
+
+func (k AceKeeper) Delete(ctx sdk.Context, key string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete([]byte(key))
 }

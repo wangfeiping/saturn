@@ -33,7 +33,7 @@ var (
 )
 
 type (
-	Keeper       = keeper.Keeper
+	AceKeeper    = keeper.AceKeeper
 	GenesisState = types.GenesisState
 	Params       = types.Params
 

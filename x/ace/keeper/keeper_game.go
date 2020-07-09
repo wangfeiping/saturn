@@ -12,7 +12,7 @@ import (
 )
 
 // GetRound returns the total set of ace plays.
-func (k Keeper) GetRound(ctx sdk.Context, start, end string) ([]types.Play, error) {
+func (k AceKeeper) GetRound(ctx sdk.Context, start, end string) ([]types.Play, error) {
 	store := ctx.KVStore(k.storeKey)
 	// byteStart := []byte("LuckyAce-LuckyAce-30-:cosmos1afaq874drmzn8lg00jmzlsn2lwdkk5qwhgdjnx")
 	// byteEnd := []byte("LuckyAce-LuckyAce-30-:cosmos1ah0pfkn6kwuj24ks2uqqu8m387ffwnm7fvsugm")
@@ -42,7 +42,7 @@ func (k Keeper) GetRound(ctx sdk.Context, start, end string) ([]types.Play, erro
 }
 
 // GetPlay returns the play of ace.
-func (k Keeper) GetPlay(ctx sdk.Context, key string) ([]types.Play, error) {
+func (k AceKeeper) GetPlay(ctx sdk.Context, key string) ([]types.Play, error) {
 	store := ctx.KVStore(k.storeKey)
 
 	var round []types.Play
@@ -58,8 +58,7 @@ func (k Keeper) GetPlay(ctx sdk.Context, key string) ([]types.Play, error) {
 }
 
 // SetPlay sets the ace play to the param space.
-func (k Keeper) SetPlay(ctx sdk.Context, key string, value types.Play) {
-	fmt.Printf("keeper set: %s %v\n", key, value)
+func (k AceKeeper) SetPlay(ctx sdk.Context, key string, value types.Play) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(value)
 	store.Set([]byte(key), bz)

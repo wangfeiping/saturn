@@ -34,16 +34,13 @@ var CARDS = [...]string{
 const DESC = "The %s of %s"
 
 // NewHandler creates an sdk.Handler for all the ace type messages
-func NewHandler(k keeper.Keeper, bank types.BankKeeper) sdk.Handler {
+func NewHandler(k keeper.AceKeeper, bank types.BankKeeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
 		case types.MsgPlay:
-			fmt.Println("handle play msg")
 			return handleMsgPlay(ctx, k, bank, msg)
 		case types.MsgAce:
-			fmt.Printf("handle ace msg: %s %s %s\n", msg.AceID, msg.GameID, msg.Action)
-			// return nil, fmt.Errorf("not support")
 			return handleMsgAce(ctx, k, bank, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
@@ -53,7 +50,7 @@ func NewHandler(k keeper.Keeper, bank types.BankKeeper) sdk.Handler {
 }
 
 // handleMsgAce handle request
-func handleMsgAce(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
+func handleMsgAce(ctx sdk.Context, k keeper.AceKeeper, bank types.BankKeeper,
 	m types.MsgAce) (*sdk.Result, error) {
 	if !strings.EqualFold("end", m.Action) {
 		return nil, fmt.Errorf("not support action: %s", m.Action)
@@ -111,7 +108,7 @@ func handleMsgAce(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 }
 
 // handleMsgPlay handle request
-func handleMsgPlay(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
+func handleMsgPlay(ctx sdk.Context, k keeper.AceKeeper, bank types.BankKeeper,
 	m types.MsgPlay) (*sdk.Result, error) {
 
 	h, err := strconv.ParseInt(m.GameID, 10, 64)
@@ -152,8 +149,8 @@ func handleMsgPlay(ctx sdk.Context, k keeper.Keeper, bank types.BankKeeper,
 		fmt.Println("send coins error: " + err.Error())
 		return nil, err
 	}
-	fmt.Printf("handle play msg: %d - %s %s %s\n", ctx.BlockHeight(),
-		m.AceID, m.Func, m.Args)
+	// fmt.Printf("handle play msg: %d - %s %s %s\n", ctx.BlockHeight(),
+	// 	m.AceID, m.Func, m.Args)
 
 	// Define msg-play events
 	ctx.EventManager().EmitEvent(
@@ -248,7 +245,7 @@ func awardsTo(winners []types.Winner, chips int,
 	return nil
 }
 
-func drawCards(plays []types.Play, ctx sdk.Context, k keeper.Keeper) error {
+func drawCards(plays []types.Play, ctx sdk.Context, k keeper.AceKeeper) error {
 	num := len(plays)
 	if num < 51 {
 		num = 51

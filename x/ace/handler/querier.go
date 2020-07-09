@@ -17,7 +17,7 @@ import (
 )
 
 // NewQuerier creates a new querier for ace clients.
-func NewQuerier(k keeper.Keeper) sdk.Querier {
+func NewQuerier(k keeper.AceKeeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		fmt.Println("query: " + strings.Join(path, "\n"))
 		fmt.Println("data: " + string(req.Data))
@@ -38,7 +38,7 @@ func NewQuerier(k keeper.Keeper) sdk.Querier {
 	}
 }
 
-func queryParams(ctx sdk.Context, k keeper.Keeper) ([]byte, error) {
+func queryParams(ctx sdk.Context, k keeper.AceKeeper) ([]byte, error) {
 	// params := k.GetParams(ctx)
 
 	// res, err := codec.MarshalJSONIndent(types.ModuleCdc, params)
@@ -50,7 +50,7 @@ func queryParams(ctx sdk.Context, k keeper.Keeper) ([]byte, error) {
 	return nil, nil
 }
 
-func querySecret(ctx sdk.Context, k keeper.Keeper) ([]byte, error) {
+func querySecret(ctx sdk.Context, k keeper.AceKeeper) ([]byte, error) {
 	// params := k.GetParams(ctx)
 
 	secret := types.Secret{
@@ -65,7 +65,7 @@ func querySecret(ctx sdk.Context, k keeper.Keeper) ([]byte, error) {
 	return res, nil
 }
 
-func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byte, error) {
+func queryGames(ctx sdk.Context, k keeper.AceKeeper, req *abci.RequestQuery) ([]byte, error) {
 	// params := k.GetParams(ctx)
 	seq := strconv.FormatInt(ctx.BlockHeight(), 10)
 	if len(seq) > 0 {
@@ -117,7 +117,7 @@ func queryGames(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byt
 	return res, nil
 }
 
-func queryRounds(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]byte, error) {
+func queryRounds(ctx sdk.Context, k keeper.AceKeeper, req *abci.RequestQuery) ([]byte, error) {
 	// round := []types.Play{
 	// 	types.Play{Address: "aaaaaa", Func: "draw", Args: "100chip"},
 	// 	types.Play{Address: "bbbbbb", Func: "draw", Args: "1000chip"},
@@ -150,7 +150,7 @@ func queryRounds(ctx sdk.Context, k keeper.Keeper, req *abci.RequestQuery) ([]by
 	return res, nil
 }
 
-func queryPlayers(ctx sdk.Context, k keeper.Keeper) ([]byte, error) {
+func queryPlayers(ctx sdk.Context, k keeper.AceKeeper) ([]byte, error) {
 
 	return nil, nil
 }
