@@ -20,12 +20,12 @@ type MsgAce struct {
 
 // NewMsgAce creates a new MsgAce instance
 func NewMsgAce(aceID, gameID, action string,
-	addr sdk.AccAddress) (*MsgAce, error) {
+	addr sdk.AccAddress) *MsgAce {
 	return &MsgAce{
 		AceID:   aceID,
 		GameID:  gameID,
 		Action:  action,
-		Address: addr}, nil
+		Address: addr}
 }
 
 // Route returns the name of module
@@ -69,7 +69,7 @@ type MsgPlay struct {
 func NewMsgPlay(
 	aceID, gameID, roundID string,
 	seed Seed, function, args string,
-	addr sdk.AccAddress) (*MsgPlay, error) {
+	addr sdk.AccAddress) *MsgPlay {
 	return &MsgPlay{
 		AceID:   aceID,
 		GameID:  gameID,
@@ -77,7 +77,7 @@ func NewMsgPlay(
 		Seed:    seed,
 		Func:    function,
 		Args:    args,
-		Address: addr}, nil
+		Address: addr}
 }
 
 // Route returns the name of module

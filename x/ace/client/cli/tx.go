@@ -70,15 +70,10 @@ func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 
 			// create, sign and send play Tx
 			// msg, err := types.NewMsgAce(cliCtx.GetFromAddress())
-			msg, err := types.NewMsgPlay(
+			msg := types.NewMsgPlay(
 				aceID, out.GameID, "",
 				seed, "draw", argsStr,
 				cliCtx.GetFromAddress())
-
-			if err != nil {
-				fmt.Printf("create play message error: %v\n", err)
-				return err
-			}
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -128,13 +123,8 @@ func GetCmdTxEnd(cdc *codec.Codec) *cobra.Command {
 
 			// create, sign and send play Tx
 			// msg, err := types.NewMsgAce(cliCtx.GetFromAddress())
-			msg, err := types.NewMsgAce(
+			msg := types.NewMsgAce(
 				aceID, out.GameID, "end", cliCtx.GetFromAddress())
-
-			if err != nil {
-				fmt.Printf("create ace message error: %v\n", err)
-				return err
-			}
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

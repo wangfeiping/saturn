@@ -2,7 +2,7 @@ package handler_test
 
 import (
 	"fmt"
-	mrand "math/rand"
+	"time"
 
 	// "strconv"
 	// "strings"
@@ -12,8 +12,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	acehandler "github.com/wangfeiping/saturn/x/ace/handler"
 	acekeeper "github.com/wangfeiping/saturn/x/ace/keeper"
 	"github.com/wangfeiping/saturn/x/ace/types"
@@ -21,17 +22,16 @@ import (
 
 var _ = Describe("AceHandler", func() {
 	var (
-		perm []int
-		num  int   = 10000
-		seed int64 = 1
+		denom  string = "chip"
+		amount int64  = 100
+		num    int    = 100
 
+		addrs         []sdk.AccAddress
 		ctx           sdk.Context
 		keeper        acekeeper.AceKeeper
 		accountKeeper auth.AccountKeeper
 		handler       sdk.Handler
 	)
-
-	addr := sdk.AccAddress([]byte("addr.test.1"))
 
 	ctx = CreateMockSdkContext()
 	keeper = CreateMockAceKeeper()
@@ -41,37 +41,61 @@ var _ = Describe("AceHandler", func() {
 
 	handler = acehandler.NewHandler(keeper, bankKeeper)
 
-	BeforeEach(func() {
-		mrand.Seed(seed)
-		perm = mrand.Perm(num)
-
-		acc := accountKeeper.NewAccountWithAddress(ctx, addr)
+	for i := 0; i < num; i++ {
+		addrs = append(addrs, sdk.AccAddress([]byte(
+			fmt.Sprintf("addr.test.%d", i))))
+		acc := accountKeeper.NewAccountWithAddress(ctx, addrs[i])
 		accountKeeper.SetAccount(ctx, acc)
-		bankKeeper.SetCoins(ctx, addr, sdk.NewCoins(sdk.NewInt64Coin("chip", 10000)))
+		bankKeeper.SetCoins(ctx, addrs[i],
+			sdk.NewCoins(sdk.NewInt64Coin(denom, amount)))
+	}
+
+	BeforeEach(func() {
 
 	})
 
 	Describe("Create an ace handler", func() {
-		Context(fmt.Sprintf("with %d random int number", num), func() {
+		Context("with mock keepers", func() {
 			It("should be success", func() {
-				Expect(len(perm)).To(Equal(num))
 				Expect(handler).NotTo(BeZero())
 			})
 		})
 	})
 
-	Describe("Call handler", func() {
+	Describe("Call ace handler", func() {
 		Context(fmt.Sprintf("with %d play messages", num), func() {
 			It("should be success", func() {
-				seed := types.Seed{Hash: []byte("")}
-				msg, err := types.NewMsgPlay(
-					"LuckyAce", "0", "",
-					seed, "draw", "",
-					addr)
-				_, err = handler(ctx, *msg)
+				for i := 0; i < num; i++ {
+					seed := types.Seed{Hash: []byte("0")}
+					msg := types.NewMsgPlay(
+						"LuckyAce", "0", "",
+						seed, "draw", "", addrs[i])
+					_, err := handler(ctx, *msg)
+					Expect(err).ShouldNot(HaveOccurred())
+					// coins := bankKeeper.GetCoins(ctx, addrs[i])
+					// Expect(coins[0].Amount.Int64()).To(Equal(amount - 1))
+				}
+			})
+		})
+
+		Context("Check the balance of all accounts", func() {
+			It("should be success", func() {
+				for i := 0; i < num; i++ {
+					coins := bankKeeper.GetCoins(ctx, addrs[i])
+					Expect(coins[0].Amount.Int64()).To(Equal(amount - 1))
+				}
+			})
+		})
+
+		Context("end the game", func() {
+			It("should be success", func() {
+				// Updates the block height
+				ctx = ctx.WithBlockHeader(
+					abci.Header{Height: 11, Time: time.Unix(10, 0)})
+				msg := types.NewMsgAce(
+					"LuckyAce", "0", "end", addrs[0])
+				_, err := handler(ctx, *msg)
 				Expect(err).ShouldNot(HaveOccurred())
-				// coins := bankKeeper.GetCoins(ctx, addr)
-				// fmt.Printf("account coin: %d %s\n", coins[0].Amount.Int64(), coins[0].Denom)
 			})
 		})
 	})
