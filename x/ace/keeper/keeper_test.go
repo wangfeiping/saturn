@@ -15,7 +15,7 @@ var _ = Describe("AceKeeper", func() {
 	var (
 		play types.Play = types.Play{
 			AceID:   "ace_test",
-			GameID:  "1000",
+			Height:  1000,
 			Address: "xxx",
 			Card:    0}
 

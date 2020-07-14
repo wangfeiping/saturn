@@ -13,13 +13,13 @@ var _ sdk.Msg = &MsgPlay{}
 // MsgAce - struct for update request of ace
 type MsgAce struct {
 	AceID   string         `json:"ace_id" yaml:"ace_id"`
-	GameID  string         `json:"game_id" yaml:"game_id"`
+	GameID  int64          `json:"game_id" yaml:"game_id"`
 	Action  string         `json:"action" yaml:"action"` // start, pause, cancel, end
 	Address sdk.AccAddress `json:"address" yaml:"address"`
 }
 
 // NewMsgAce creates a new MsgAce instance
-func NewMsgAce(aceID, gameID, action string,
+func NewMsgAce(aceID string, gameID int64, action string,
 	addr sdk.AccAddress) *MsgAce {
 	return &MsgAce{
 		AceID:   aceID,
@@ -57,8 +57,8 @@ func (msg MsgAce) ValidateBasic() error {
 // MsgPlay - struct for one-step-play request of game
 type MsgPlay struct {
 	AceID   string         `json:"ace_id" yaml:"ace_id"`
-	GameID  string         `json:"game_id" yaml:"game_id"`
-	RoundID string         `json:"round_id" yaml:"round_id"`
+	GameID  int64          `json:"game_id" yaml:"game_id"`
+	RoundID int            `json:"round_id" yaml:"round_id"`
 	Seed    Seed           `json:"seed" yaml:"seed"` // random seed
 	Func    string         `json:"func" yaml:"func"`
 	Args    string         `json:"args" yaml:"args"`
@@ -67,7 +67,7 @@ type MsgPlay struct {
 
 // NewMsgPlay creates a new MsgPlay instance
 func NewMsgPlay(
-	aceID, gameID, roundID string,
+	aceID string, gameID int64, roundID int,
 	seed Seed, function, args string,
 	addr sdk.AccAddress) *MsgPlay {
 	return &MsgPlay{

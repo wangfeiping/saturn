@@ -5,7 +5,8 @@ const (
 	QueryParams  = "params"
 	QuerySecret  = "secret"
 	QueryGames   = "games"
-	QueryPlayers = "players"
+	QueryPlays   = "plays"
+	QueryWinners = "winners"
 	QueryRounds  = "rounds"
 	QuerySeeds   = "seeds"
 )

@@ -71,7 +71,7 @@ func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 			// create, sign and send play Tx
 			// msg, err := types.NewMsgAce(cliCtx.GetFromAddress())
 			msg := types.NewMsgPlay(
-				aceID, out.GameID, "",
+				aceID, out.GameID, 0,
 				seed, "draw", argsStr,
 				cliCtx.GetFromAddress())
 			err = msg.ValidateBasic()

@@ -132,11 +132,12 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 
 // BeginBlock returns the begin blocker for the ace module.
 func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
-	BeginBlocker(ctx, req, am.keeper)
+	handler.BeginBlockHandle(ctx, req, am.keeper)
 }
 
 // EndBlock returns the end blocker for the ace module. It returns no validator
 // updates.
-func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx sdk.Context,
+	req abci.RequestEndBlock) []abci.ValidatorUpdate {
+	return handler.EndBlockHandle(ctx, req, am.keeper, am.bank)
 }

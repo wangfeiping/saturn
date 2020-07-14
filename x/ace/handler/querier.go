@@ -19,8 +19,7 @@ import (
 // NewQuerier creates a new querier for ace clients.
 func NewQuerier(k keeper.AceKeeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
-		fmt.Println("query: " + strings.Join(path, "\n"))
-		fmt.Println("data: " + string(req.Data))
+		ctx.Logger().Info("query...", "path", path, "data", string(req.Data))
 		switch path[0] {
 		case types.QueryParams:
 			return queryParams(ctx, k)
@@ -30,8 +29,8 @@ func NewQuerier(k keeper.AceKeeper) sdk.Querier {
 			return queryGames(ctx, k, &req)
 		case types.QueryRounds:
 			return queryRounds(ctx, k, &req)
-		case types.QueryPlayers:
-			return queryPlayers(ctx, k)
+		case types.QueryWinners:
+			return queryWinners(ctx, k, &req)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown ace query endpoint")
 		}
@@ -65,17 +64,11 @@ func querySecret(ctx sdk.Context, k keeper.AceKeeper) ([]byte, error) {
 	return res, nil
 }
 
-func queryGames(ctx sdk.Context, k keeper.AceKeeper, req *abci.RequestQuery) ([]byte, error) {
-	// params := k.GetParams(ctx)
-	seq := strconv.FormatInt(ctx.BlockHeight(), 10)
-	if len(seq) > 0 {
-		seq = seq[:len(seq)-1] + "0"
-	} else {
-		seq = "0"
-	}
+func queryGames(ctx sdk.Context, k keeper.AceKeeper,
+	req *abci.RequestQuery) ([]byte, error) {
 	lkGame := types.Game{
 		AceID:       types.AceID,
-		GameID:      seq,
+		GameID:      CheckGameID(ctx),
 		Type:        "melee",
 		IsGroupGame: false,
 		Info: `
@@ -93,7 +86,7 @@ func queryGames(ctx sdk.Context, k keeper.AceKeeper, req *abci.RequestQuery) ([]
 			lkGame.AceID = ""
 			lkGame.Type = ""
 			lkGame.IsGroupGame = false
-			lkGame.GameID = ""
+			lkGame.GameID = 0
 			lkGame.Info = ""
 		}
 		res, err := codec.MarshalJSONIndent(types.ModuleCdc, lkGame)
@@ -117,7 +110,8 @@ func queryGames(ctx sdk.Context, k keeper.AceKeeper, req *abci.RequestQuery) ([]
 	return res, nil
 }
 
-func queryRounds(ctx sdk.Context, k keeper.AceKeeper, req *abci.RequestQuery) ([]byte, error) {
+func queryRounds(ctx sdk.Context, k keeper.AceKeeper,
+	req *abci.RequestQuery) ([]byte, error) {
 	// round := []types.Play{
 	// 	types.Play{Address: "aaaaaa", Func: "draw", Args: "100chip"},
 	// 	types.Play{Address: "bbbbbb", Func: "draw", Args: "1000chip"},
@@ -150,7 +144,56 @@ func queryRounds(ctx sdk.Context, k keeper.AceKeeper, req *abci.RequestQuery) ([
 	return res, nil
 }
 
-func queryPlayers(ctx sdk.Context, k keeper.AceKeeper) ([]byte, error) {
+func queryWinners(ctx sdk.Context, k keeper.AceKeeper,
+	req *abci.RequestQuery) ([]byte, error) {
+	var h int64
+	h, err := strconv.ParseInt(string(req.Data), 10, 64)
+	if err != nil {
+		fmt.Printf("wrong game id: %s %v\n", string(req.Data), err)
+		return nil, err
+	}
 
-	return nil, nil
+	winners, err := k.GetWinners(ctx,
+		types.CreateGameID(types.AceID, h), types.CreateGameID(types.AceID, h+1))
+	if err != nil {
+		fmt.Printf("query winners error: %v\n", err)
+		return nil, err
+	}
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, winners)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
+}
+
+// QueryAllPlays only for test querying all plays
+func QueryAllPlays(ctx sdk.Context, k keeper.AceKeeper,
+	req *abci.RequestQuery) ([]byte, error) {
+
+	var h int64
+	h, err := strconv.ParseInt(string(req.Data), 10, 64)
+	if err != nil {
+		fmt.Printf("wrong game id: %s %v\n", string(req.Data), err)
+		return nil, err
+	}
+	round, err := k.GetRound(ctx,
+		types.CreateGameID(types.AceID, h), types.CreateGameID(types.AceID, h+1))
+	if err != nil {
+		fmt.Printf("query round error: %v\n", err)
+		return nil, err
+	}
+
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, round)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return res, nil
+}
+
+func CheckGameID(ctx sdk.Context) int64 {
+	seq := ctx.BlockHeight()
+	seq = seq / 10 * 10
+	return seq
 }

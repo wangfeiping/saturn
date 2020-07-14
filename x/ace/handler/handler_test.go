@@ -15,31 +15,33 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	acehandler "github.com/wangfeiping/saturn/x/ace/handler"
-	acekeeper "github.com/wangfeiping/saturn/x/ace/keeper"
+	"github.com/wangfeiping/saturn/x/ace/handler"
+	"github.com/wangfeiping/saturn/x/ace/keeper"
 	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
 var _ = Describe("AceHandler", func() {
 	var (
-		denom  string = "chip"
-		amount int64  = 100
-		num    int    = 100
+		denom   string = "chip"
+		balance int64  = 9999999
+		num     int    = 5
 
 		addrs         []sdk.AccAddress
 		ctx           sdk.Context
-		keeper        acekeeper.AceKeeper
+		aceKeeper     keeper.AceKeeper
 		accountKeeper auth.AccountKeeper
-		handler       sdk.Handler
+		handle        sdk.Handler
+		query         sdk.Querier
 	)
 
 	ctx = CreateMockSdkContext()
-	keeper = CreateMockAceKeeper()
+	aceKeeper = CreateMockAceKeeper()
 	pk := CreateMockParamsKeeper()
 	accountKeeper = CreateMockAccountKeeper(pk)
 	bankKeeper := CreateMockBankKeeper(accountKeeper, pk)
 
-	handler = acehandler.NewHandler(keeper, bankKeeper)
+	handle = handler.NewHandler(aceKeeper, bankKeeper)
+	query = handler.NewQuerier(aceKeeper)
 
 	for i := 0; i < num; i++ {
 		addrs = append(addrs, sdk.AccAddress([]byte(
@@ -47,7 +49,7 @@ var _ = Describe("AceHandler", func() {
 		acc := accountKeeper.NewAccountWithAddress(ctx, addrs[i])
 		accountKeeper.SetAccount(ctx, acc)
 		bankKeeper.SetCoins(ctx, addrs[i],
-			sdk.NewCoins(sdk.NewInt64Coin(denom, amount)))
+			sdk.NewCoins(sdk.NewInt64Coin(denom, balance)))
 	}
 
 	BeforeEach(func() {
@@ -57,7 +59,7 @@ var _ = Describe("AceHandler", func() {
 	Describe("Create an ace handler", func() {
 		Context("with mock keepers", func() {
 			It("should be success", func() {
-				Expect(handler).NotTo(BeZero())
+				Expect(handle).NotTo(BeZero())
 			})
 		})
 	})
@@ -65,15 +67,15 @@ var _ = Describe("AceHandler", func() {
 	Describe("Call ace handler", func() {
 		Context(fmt.Sprintf("with %d play messages", num), func() {
 			It("should be success", func() {
+				ctx = ctx.WithBlockHeader(
+					abci.Header{Height: 0, Time: time.Unix(10, 0)})
 				for i := 0; i < num; i++ {
 					seed := types.Seed{Hash: []byte("0")}
 					msg := types.NewMsgPlay(
-						"LuckyAce", "0", "",
+						"LuckyAce", 0, 0,
 						seed, "draw", "", addrs[i])
-					_, err := handler(ctx, *msg)
+					_, err := handle(ctx, *msg)
 					Expect(err).ShouldNot(HaveOccurred())
-					// coins := bankKeeper.GetCoins(ctx, addrs[i])
-					// Expect(coins[0].Amount.Int64()).To(Equal(amount - 1))
 				}
 			})
 		})
@@ -82,7 +84,7 @@ var _ = Describe("AceHandler", func() {
 			It("should be success", func() {
 				for i := 0; i < num; i++ {
 					coins := bankKeeper.GetCoins(ctx, addrs[i])
-					Expect(coins[0].Amount.Int64()).To(Equal(amount - 1))
+					Expect(coins[0].Amount.Int64()).To(Equal(balance - 1000000))
 				}
 			})
 		})
@@ -91,11 +93,124 @@ var _ = Describe("AceHandler", func() {
 			It("should be success", func() {
 				// Updates the block height
 				ctx = ctx.WithBlockHeader(
-					abci.Header{Height: 11, Time: time.Unix(10, 0)})
-				msg := types.NewMsgAce(
-					"LuckyAce", "0", "end", addrs[0])
-				_, err := handler(ctx, *msg)
+					abci.Header{Height: 9, Time: time.Unix(10, 0)})
+				handler.EndBlockHandle(ctx, abci.RequestEndBlock{},
+					aceKeeper, bankKeeper)
+
+				req := abci.RequestQuery{Data: []byte("0")}
+				res, err := handler.QueryAllPlays(ctx, aceKeeper, &req)
 				Expect(err).ShouldNot(HaveOccurred())
+				var plays []*types.Play
+				testCdc.MustUnmarshalJSON(res, &plays)
+				for i, p := range plays {
+					fmt.Printf("play: %d %s %d %s\n", i, p.Address, p.Card, handler.CARDS[p.Card])
+				}
+
+				res, err = query(ctx, []string{types.QueryWinners}, req)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				var out []*types.Winner
+				testCdc.MustUnmarshalJSON(res, &out)
+				fmt.Printf("!!!winner: %s\n", out[0].Address)
+				Expect(out[0].Address).To(Equal("cosmos1v9jxgu3ww3jhxapwxvj6q2am"))
+			})
+		})
+	})
+})
+
+var _ = Describe("AceHandler", func() {
+	var (
+		denom   string = "chip"
+		balance int64  = 9999999
+		num     int    = 6
+
+		addrs         []sdk.AccAddress
+		ctx           sdk.Context
+		aceKeeper     keeper.AceKeeper
+		accountKeeper auth.AccountKeeper
+		handle        sdk.Handler
+		query         sdk.Querier
+	)
+
+	ctx = CreateMockSdkContext()
+	aceKeeper = CreateMockAceKeeper()
+	pk := CreateMockParamsKeeper()
+	accountKeeper = CreateMockAccountKeeper(pk)
+	bankKeeper := CreateMockBankKeeper(accountKeeper, pk)
+
+	handle = handler.NewHandler(aceKeeper, bankKeeper)
+	query = handler.NewQuerier(aceKeeper)
+
+	for i := 0; i < num; i++ {
+		addrs = append(addrs, sdk.AccAddress([]byte(
+			fmt.Sprintf("addr.test.%d", i))))
+		acc := accountKeeper.NewAccountWithAddress(ctx, addrs[i])
+		accountKeeper.SetAccount(ctx, acc)
+		bankKeeper.SetCoins(ctx, addrs[i],
+			sdk.NewCoins(sdk.NewInt64Coin(denom, balance)))
+	}
+
+	BeforeEach(func() {
+
+	})
+
+	Describe("Create an ace handler", func() {
+		Context("with mock keepers", func() {
+			It("should be success", func() {
+				Expect(handle).NotTo(BeZero())
+			})
+		})
+	})
+
+	Describe("Call ace handler", func() {
+		Context(fmt.Sprintf("with %d play messages", num), func() {
+			It("should be success", func() {
+				ctx = ctx.WithBlockHeader(
+					abci.Header{Height: 0, Time: time.Unix(10, 0)})
+				for i := 0; i < num; i++ {
+					seed := types.Seed{Hash: []byte("0")}
+					msg := types.NewMsgPlay(
+						"LuckyAce", 0, 0,
+						seed, "draw", "", addrs[i])
+					_, err := handle(ctx, *msg)
+					Expect(err).ShouldNot(HaveOccurred())
+				}
+			})
+		})
+
+		Context("Check the balance of all accounts", func() {
+			It("should be success", func() {
+				for i := 0; i < num; i++ {
+					coins := bankKeeper.GetCoins(ctx, addrs[i])
+					Expect(coins[0].Amount.Int64()).To(Equal(balance - 1000000))
+				}
+			})
+		})
+
+		Context("end the game", func() {
+			It("should be success", func() {
+				// Updates the block height
+				ctx = ctx.WithBlockHeader(
+					abci.Header{Height: 9, Time: time.Unix(10, 0)})
+				handler.EndBlockHandle(ctx, abci.RequestEndBlock{},
+					aceKeeper, bankKeeper)
+
+				req := abci.RequestQuery{Data: []byte("0")}
+				res, err := handler.QueryAllPlays(ctx, aceKeeper, &req)
+				Expect(err).ShouldNot(HaveOccurred())
+				var plays []*types.Play
+				testCdc.MustUnmarshalJSON(res, &plays)
+				for i, p := range plays {
+					fmt.Printf("play: %d %s %d %s\n", i, p.Address, p.Card, handler.CARDS[p.Card])
+				}
+
+				res, err = query(ctx, []string{types.QueryWinners}, req)
+				Expect(err).ShouldNot(HaveOccurred())
+
+				var out []types.Winner
+				testCdc.MustUnmarshalJSON(res, &out)
+				fmt.Printf("!!!winner: %s\n", out[0].Address)
+				Expect(out[0].Address).To(Equal("cosmos1v9jxgu3ww3jhxapwxyvwyxrx"))
 			})
 		})
 	})

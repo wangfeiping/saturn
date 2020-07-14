@@ -1,9 +1,13 @@
 package types
 
+import (
+	"fmt"
+)
+
 // Game struct for game info
 type Game struct {
 	AceID       string
-	GameID      string
+	GameID      int64
 	Type        string
 	Info        string
 	IsGroupGame bool
@@ -13,8 +17,8 @@ type Game struct {
 type Play struct {
 	TxHash  string
 	AceID   string
-	GameID  string
-	RoundID string
+	Height  int64
+	RoundID int
 	Address string
 	Seed    Seed
 	Func    string
@@ -25,4 +29,12 @@ type Play struct {
 type Chips struct {
 	Amount int
 	Denom  string
+}
+
+func (p Play) Key() string {
+	return fmt.Sprintf("%s:%s:%d:%s",
+		QueryPlays, CreateGameID(p.AceID, p.Height), p.RoundID, p.Address)
+}
+func CreateGameID(aceID string, height int64) string {
+	return fmt.Sprintf("%s:%d", aceID, height)
 }

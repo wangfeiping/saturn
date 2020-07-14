@@ -32,7 +32,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			GetCmdQuerySecret(cdc),
 			GetCmdQueryGames(cdc),
 			GetCmdQueryRounds(cdc),
-			GetCmdQueryPlayers(cdc),
+			GetCmdQueryWinners(cdc),
 		)...,
 	)
 
@@ -150,22 +150,22 @@ func GetCmdQueryRounds(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-// GetCmdQueryPlayers queries all players about a game
-func GetCmdQueryPlayers(cdc *codec.Codec) *cobra.Command {
+// GetCmdQueryWinners queries all winners about a game
+func GetCmdQueryWinners(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "players",
-		Short: "players",
+		Use:   "winners",
+		Short: "winners",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 			res, _, err := cliCtx.QueryWithData(
 				fmt.Sprintf("custom/%s/%s",
-					types.QuerierRoute, types.QueryPlayers), nil)
+					types.QuerierRoute, types.QueryWinners), nil)
 			if err != nil {
-				fmt.Printf("query players error: %v\n", err.Error())
+				fmt.Printf("query winners error: %v\n", err.Error())
 				return nil
 			}
-			fmt.Printf("query players: %s", string(res))
+			fmt.Printf("query winners: %s", string(res))
 
 			// var out types.Round
 			// cdc.MustUnmarshalJSON(res, &out)
