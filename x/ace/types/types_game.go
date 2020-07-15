@@ -2,7 +2,15 @@ package types
 
 import (
 	"fmt"
+
+	"github.com/wangfeiping/saturn/x/ace/security"
 )
+
+// Seed struct for random seed
+type Seed struct {
+	Secret security.Secret
+	Hash   []byte
+}
 
 // Game struct for game info
 type Game struct {

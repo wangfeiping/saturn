@@ -14,6 +14,8 @@ import (
 
 	"github.com/wangfeiping/saturn/x/ace/keeper"
 	"github.com/wangfeiping/saturn/x/ace/types"
+
+	"github.com/wangfeiping/saturn/x/ace/security"
 )
 
 // NewQuerier creates a new querier for ace clients.
@@ -50,12 +52,8 @@ func queryParams(ctx sdk.Context, k keeper.AceKeeper) ([]byte, error) {
 }
 
 func querySecret(ctx sdk.Context, k keeper.AceKeeper) ([]byte, error) {
-	// params := k.GetParams(ctx)
+	secret := security.Secret{Alg: "paillier", Hash: "******", Height: 0}
 
-	secret := types.Secret{
-		Alg:    "paillier",
-		Pub:    "******",
-		Height: "0xHHHHHH"}
 	res, err := codec.MarshalJSONIndent(types.ModuleCdc, secret)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())

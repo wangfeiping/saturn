@@ -37,7 +37,6 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	Secret = types.Secret
-	Play   = types.Play
-	Seed   = types.Seed
+	Play = types.Play
+	Seed = types.Seed
 )

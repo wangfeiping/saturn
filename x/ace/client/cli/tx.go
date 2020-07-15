@@ -65,7 +65,7 @@ func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 			var out types.Game
 			cdc.MustUnmarshalJSON(res, &out)
 			fmt.Println(out.Info)
-			fmt.Printf("Game       : %s\t%s\t%s\n", out.AceID, out.Type, out.GameID)
+			fmt.Printf("Game       : %s\t%s\t%d\n", out.AceID, out.Type, out.GameID)
 			fmt.Printf("IsGroupGame: %t\n", out.IsGroupGame)
 
 			// create, sign and send play Tx
@@ -118,7 +118,7 @@ func GetCmdTxEnd(cdc *codec.Codec) *cobra.Command {
 			var out types.Game
 			cdc.MustUnmarshalJSON(res, &out)
 			fmt.Println(out.Info)
-			fmt.Printf("Game       : %s\t%s\t%s\n", out.AceID, out.Type, out.GameID)
+			fmt.Printf("Game       : %s\t%s\t%d\n", out.AceID, out.Type, out.GameID)
 			fmt.Printf("IsGroupGame: %t\n", out.IsGroupGame)
 
 			// create, sign and send play Tx

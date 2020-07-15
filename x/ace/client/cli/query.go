@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/wangfeiping/saturn/x/ace/security"
 	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
@@ -55,7 +56,7 @@ func GetCmdQuerySecret(cdc *codec.Codec) *cobra.Command {
 				return nil
 			}
 
-			var out types.Secret
+			var out security.Secret
 			cdc.MustUnmarshalJSON(res, &out)
 
 			home := viper.GetString(flags.FlagHome)
@@ -97,7 +98,7 @@ func GetCmdQueryGames(cdc *codec.Codec) *cobra.Command {
 				cdc.MustUnmarshalJSON(res, &out)
 				// return cliCtx.PrintOutput(out)
 				for _, g := range out {
-					fmt.Printf("Game       : %s\t%s\t%s\n", g.AceID, g.Type, g.GameID)
+					fmt.Printf("Game       : %s\t%s\t%d\n", g.AceID, g.Type, g.GameID)
 					fmt.Printf("IsGroupGame: %t\n", g.IsGroupGame)
 				}
 				return nil
@@ -105,7 +106,7 @@ func GetCmdQueryGames(cdc *codec.Codec) *cobra.Command {
 			var out types.Game
 			cdc.MustUnmarshalJSON(res, &out)
 			fmt.Println(out.Info)
-			fmt.Printf("Game       : %s\t%s\t%s\n", out.AceID, out.Type, out.GameID)
+			fmt.Printf("Game       : %s\t%s\t%d\n", out.AceID, out.Type, out.GameID)
 			fmt.Printf("IsGroupGame: %t\n", out.IsGroupGame)
 			// return cliCtx.PrintOutput(out)
 			return nil
