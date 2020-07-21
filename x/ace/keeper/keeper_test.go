@@ -10,7 +10,7 @@ import (
 	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
-var _ = Describe("AceKeeper", func() {
+var _ = Describe("x/ace/keeper", func() {
 
 	var (
 		play types.Play = types.Play{

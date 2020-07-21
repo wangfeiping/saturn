@@ -22,7 +22,7 @@ import (
 	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
-var _ = Describe("AceHandler", func() {
+var _ = Describe("x/ace/handler", func() {
 	var (
 		denom   string  = "chip"
 		balance int64   = 9999999
