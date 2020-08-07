@@ -56,19 +56,22 @@ func GetCmdTxPlay(cdc *codec.Codec) *cobra.Command {
 					inBuf, address).WithCodec(cdc)
 
 			// query game id
-			res, _, err := cliCtx.QueryWithData(
-				fmt.Sprintf("custom/%s/%s",
-					types.QuerierRoute, types.QueryGames), []byte(aceID))
-			if err != nil {
-				fmt.Printf("query game error: %v\n", err.Error())
-				return nil
-			}
-			var out types.Game
-			cdc.MustUnmarshalJSON(res, &out)
-			fmt.Println(out.Info)
-			fmt.Printf("Game       : %s\t%s\t%d\n", out.AceID, out.Type, out.GameID)
-			fmt.Printf("IsGroupGame: %t\n", out.IsGroupGame)
+			// res, _, err := cliCtx.QueryWithData(
+			// 	fmt.Sprintf("custom/%s/%s",
+			// 		types.QuerierRoute, types.QueryGames), []byte(aceID))
+			// if err != nil {
+			// 	fmt.Printf("query game error: %v\n", err.Error())
+			// 	return nil
+			// }
+			// var out types.Game
+			// cdc.MustUnmarshalJSON(res, &out)
+			// fmt.Println(out.Info)
+			// fmt.Printf("Game       : %s\t%s\t%d\n", out.AceID, out.Type, out.GameID)
+			// fmt.Printf("IsGroupGame: %t\n", out.IsGroupGame)
 
+			var err error
+			var out types.Game
+			out.GameID = 100
 			// create, sign and send play Tx
 			// msg, err := types.NewMsgAce(cliCtx.GetFromAddress())
 			msg := types.NewMsgPlay(
