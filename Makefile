@@ -1,11 +1,12 @@
 PACKAGES=$(shell go list ./... | grep -v '/simulation')
 DIR_BUILD=./build
 
+NAME := Saturn
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 
 # TODO: Update the ldflags with the app, client & server names
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=Demo \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=$(NAME) \
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=saturnd \
 	-X github.com/cosmos/cosmos-sdk/version.ClientName=saturncli \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
@@ -13,7 +14,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=Demo \
 
 BUILD_FLAGS := -ldflags '$(ldflags)'
 
-all: build
+all: install
 
 install: test
 		go install -mod=readonly $(BUILD_FLAGS) ./cmd/saturnd

@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/wangfeiping/saturn/x/ace/security"
+	"github.com/wangfeiping/saturn/x/ace/security/paillier"
 )
 
 // RegisterCodec registers concrete types on codec
@@ -11,6 +12,8 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgAce{}, "Saturn/MsgAce", nil)
 	cdc.RegisterConcrete(MsgPlay{}, "Saturn/MsgPlay", nil)
 	cdc.RegisterConcrete(security.Secret{}, "Saturn/Secret", nil)
+	cdc.RegisterConcrete(paillier.PaillierPubKey{}, "Saturn/PulicKey/Paillier", nil)
+	cdc.RegisterConcrete(paillier.PaillierPrivKey{}, "Saturn/PrivateKey/Paillier", nil)
 	cdc.RegisterConcrete(Game{}, "Saturn/Game", nil)
 	cdc.RegisterConcrete(Play{}, "Saturn/Play", nil)
 	cdc.RegisterConcrete(Winner{}, "Saturn/Winner", nil)

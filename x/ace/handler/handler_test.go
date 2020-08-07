@@ -111,16 +111,16 @@ var _ = Describe("x/ace/handler", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 				var plays []*types.Play
 				testCdc.MustUnmarshalJSON(res, &plays)
-				for i, p := range plays {
-					fmt.Printf("play: %d %s %d %s\n", i, p.Address, p.Card, handler.CARDS[p.Card])
-				}
+				// for i, p := range plays {
+				// 	fmt.Printf("play: %d %s %d %s\n", i, p.Address, p.Card, handler.CARDS[p.Card])
+				// }
 
 				res, err = query(ctx, []string{types.QueryWinners}, req)
 				Expect(err).ShouldNot(HaveOccurred())
 
 				var out []*types.Winner
 				testCdc.MustUnmarshalJSON(res, &out)
-				fmt.Printf("!!!winner: %s\n", out[0].Address)
+				// fmt.Printf("!!!winner: %s\n", out[0].Address)
 				Expect(out[0].Address).To(Equal("cosmos1v9jxgu3ww3jhxapwxvj6q2am"))
 			})
 		})
@@ -209,16 +209,16 @@ var _ = Describe("AceHandler", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 				var plays []*types.Play
 				testCdc.MustUnmarshalJSON(res, &plays)
-				for i, p := range plays {
-					fmt.Printf("play: %d %s %d %s\n", i, p.Address, p.Card, handler.CARDS[p.Card])
-				}
+				// for i, p := range plays {
+				// 	fmt.Printf("play: %d %s %d %s\n", i, p.Address, p.Card, handler.CARDS[p.Card])
+				// }
 
 				res, err = query(ctx, []string{types.QueryWinners}, req)
 				Expect(err).ShouldNot(HaveOccurred())
 
 				var out []types.Winner
 				testCdc.MustUnmarshalJSON(res, &out)
-				fmt.Printf("!!!winner: %s\n", out[0].Address)
+				// fmt.Printf("!!!winner: %s\n", out[0].Address)
 				Expect(out[0].Address).To(Equal("cosmos1v9jxgu3ww3jhxapwxyvwyxrx"))
 			})
 		})

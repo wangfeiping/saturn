@@ -222,15 +222,19 @@ func NewInitApp(
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		// ace.NewAppModule(ace.Keeper{}),
 		ace.NewAppModule(keeper.NewKeeper(app.cdc, keys[ace.StoreKey]), app.bankKeeper),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
 
-	app.mm.SetOrderBeginBlockers(distr.ModuleName, slashing.ModuleName)
-	app.mm.SetOrderEndBlockers(staking.ModuleName)
+	app.mm.SetOrderBeginBlockers(
+		distr.ModuleName,
+		slashing.ModuleName,
+		ace.ModuleName)
+	app.mm.SetOrderEndBlockers(
+		ace.ModuleName,
+		staking.ModuleName)
 
 	// Sets the order of Genesis - Order matters, genutil is to always come last
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -296,11 +300,13 @@ func (app *NewApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.
 
 // BeginBlocker application updates every begin block
 func (app *NewApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	// ctx.Logger().Debug("app.BeginBlocker")
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // EndBlocker application updates every end block
 func (app *NewApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	// ctx.Logger().Debug("app.EndBlocker")
 	return app.mm.EndBlock(ctx, req)
 }
 

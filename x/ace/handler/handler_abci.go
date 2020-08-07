@@ -15,37 +15,41 @@ import (
 // on every begin block
 func BeginBlockHandle(ctx sdk.Context, req abci.RequestBeginBlock,
 	k keeper.AceKeeper) {
+	ctx.Logger().Debug("Begin block handle", "height", ctx.BlockHeight())
 }
 
 // EndBlockHandle called every block, process inflation, update validator set.
 func EndBlockHandle(ctx sdk.Context, req abci.RequestEndBlock,
 	k keeper.AceKeeper, bk types.BankKeeper) (vus []abci.ValidatorUpdate) {
 
+	ctx.Logger().Debug("End block handle", "height", ctx.BlockHeight())
+
 	endGameID := CheckGameID(ctx)
 	if endGameID != ctx.BlockHeight()+1-types.GameDurationHeight {
 		return
 	}
 
-	ctx.Logger().Info("end game: %d at height %d\n", endGameID, ctx.BlockHeight())
 	// TODO A large number of TXs processing optimizations
 	plays, err := k.GetRound(ctx,
 		types.CreateGameID(types.AceID, endGameID),
 		types.CreateGameID(types.AceID, endGameID+1))
 	if err != nil {
-		fmt.Printf("query round error: %v\n", err)
+		ctx.Logger().Error("Query plays error", "error", err)
 		return
 	}
+
+	if len(plays) == 0 {
+		ctx.Logger().Info("No game", "height", ctx.BlockHeight())
+		return
+	}
+	ctx.Logger().Info("Game over", "game", endGameID, "height", ctx.BlockHeight())
 
 	// TODO Random Seed function to be implemented
 	err = drawCards(plays, ctx, k)
 	if err != nil {
-		fmt.Printf("drawing cards error: %v\n", err)
+		ctx.Logger().Error("Drawing card error", "error", err)
 		return
 	}
-	// for i, p := range plays {
-	// 	c := CARDS[p.Card]
-	// 	fmt.Printf("draw %d play: %d; %s by %s\n", i, p.Card, c, p.Address)
-	// }
 
 	winners := checkWinner(plays)
 	for _, w := range winners {
@@ -54,7 +58,7 @@ func EndBlockHandle(ctx sdk.Context, req abci.RequestEndBlock,
 
 	err = AwardToWinners(winners, len(plays), bk)
 	if err != nil {
-		fmt.Printf("award to winners error: %v\n", err)
+		ctx.Logger().Error("Award to winners error", "error", err)
 	}
 	return
 }

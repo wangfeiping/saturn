@@ -7,6 +7,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+
 	"github.com/wangfeiping/saturn/x/ace/security"
 	"github.com/wangfeiping/saturn/x/ace/security/paillier"
 )
@@ -34,7 +36,7 @@ var _ = Describe("x/ace/security", func() {
 			})
 		})
 
-		Context("encrypt the number 7011, 1058, 39099", func() {
+		Context("Encrypt the number 7011, 1058, 39099", func() {
 			It("should be success", func() {
 				var err error
 				plainA, err = pubkey.Encrypt(big.NewInt(7011).Bytes())
@@ -58,14 +60,58 @@ var _ = Describe("x/ace/security", func() {
 			})
 		})
 
-		Context("decrypt the result 39099", func() {
+		Context("Decrypt the result 39099", func() {
 			It("should be success", func() {
 				r, err := privkey.Decrypt(result)
 				Expect(err).ShouldNot(HaveOccurred())
 				i := new(big.Int).SetBytes(r)
-				fmt.Println(i)
 				Expect(i).To(Equal(big.NewInt(47168)))
 			})
+		})
+	})
+})
+
+var _ = Describe("Paillier", func() {
+
+	var (
+		cdc     *codec.Codec
+		privkey security.PrivateKey
+		pubkey  security.PublicKey
+	)
+
+	cdc = codec.New()
+	cdc.RegisterInterface((*security.PrivateKey)(nil), nil)
+	cdc.RegisterInterface((*security.PublicKey)(nil), nil)
+	cdc.RegisterConcrete(paillier.PaillierPrivKey{}, "Saturn/PrivateKey/Paillier", nil)
+	cdc.RegisterConcrete(paillier.PaillierPubKey{}, "Saturn/PublicKey/Paillier", nil)
+	cdc.Seal()
+
+	BeforeEach(func() {
+
+	})
+
+	Describe("Codec encode and decode the security keys", func() {
+		Context("encode", func() {
+			privkey = paillier.Create()
+			pubkey = privkey.PublicKey()
+
+			if cdc == nil {
+				fmt.Println("nil!!!")
+			}
+			bytes := cdc.MustMarshalJSON(privkey)
+			// if err != nil {
+			// 	fmt.Println("err: ", err)
+			// }
+			// Expect(err).ShouldNot(HaveOccurred())
+			fmt.Println("privkey: ", string(bytes))
+
+			bytes = cdc.MustMarshalJSON(pubkey)
+			fmt.Println("pubkey: ", string(bytes))
+
+			var pub security.PublicKey
+			cdc.MustUnmarshalJSON(bytes, &pub)
+			_, _ = pub.Encrypt(big.NewInt(7011).Bytes())
+
 		})
 	})
 })
