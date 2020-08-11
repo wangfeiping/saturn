@@ -26,7 +26,6 @@ type Play struct {
 	TxHash  string
 	AceID   string
 	Height  int64
-	RoundID int
 	Address string
 	Seed    Seed
 	Func    string
@@ -40,8 +39,8 @@ type Chips struct {
 }
 
 func (p Play) Key() string {
-	return fmt.Sprintf("%s:%s:%d:%s",
-		QueryPlays, CreateGameID(p.AceID, p.Height), p.RoundID, p.Address)
+	return fmt.Sprintf("%s:%s:%s",
+		QueryPlays, CreateGameID(p.AceID, p.Height), p.Address)
 }
 func CreateGameID(aceID string, height int64) string {
 	return fmt.Sprintf("%s:%d", aceID, height)

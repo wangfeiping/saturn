@@ -13,7 +13,8 @@ import (
 var _ = Describe("x/ace/keeper", func() {
 
 	var (
-		play types.Play = types.Play{
+		height int64      = 99
+		play   types.Play = types.Play{
 			AceID:   "ace_test",
 			Height:  1000,
 			Address: "xxx",
@@ -62,5 +63,30 @@ var _ = Describe("x/ace/keeper", func() {
 			})
 		})
 
+	})
+
+	Describe("Create an ace keeper", func() {
+		Context("with mem db", func() {
+			It("should be success", func() {
+				Expect(keeper).NotTo(BeZero())
+				log := keeper.Logger(ctx)
+				log.Debug("test")
+				// Expect(true).To(BeTrue())
+				Expect(log).NotTo(BeZero())
+			})
+
+			It(`should be success for calling method "Set"`, func() {
+				keeper.Set(ctx, "test", height)
+				Expect(keeper.Has(ctx, "test")).To(BeTrue())
+			})
+
+			It(`should be success for calling method "Get"`, func() {
+				// keeper.Set(ctx, "test", play)
+				var h int64
+				err := keeper.Get(ctx, "test", &h)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(height).To(Equal(h))
+			})
+		})
 	})
 })

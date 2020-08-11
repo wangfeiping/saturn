@@ -48,18 +48,18 @@ func handleMsgPlay(ctx sdk.Context, k keeper.AceKeeper, bank types.BankKeeper,
 	m types.MsgPlay) (*sdk.Result, error) {
 
 	var err error
-	h := m.GameID
+	h := checkGameStartHeight(ctx)
 	if h <= ctx.BlockHeight()-types.GameDurationHeight {
 		err = fmt.Errorf("game is over: %d current: %d", h, ctx.BlockHeight())
-		fmt.Println(err.Error())
+		ctx.Logger().With("module", "ace").
+			Error("game is over", "game", h, "height", ctx.BlockHeight())
 		return nil, err
 	}
 	// TODO How to get the TX's hash, Resolving conflicts over play TXs
 	play := types.Play{
 		// TxHash:  ,
 		AceID:   m.AceID,
-		Height:  m.GameID,
-		RoundID: m.RoundID,
+		Height:  h,
 		Address: m.Address.String(),
 		Seed:    m.Seed,
 		Func:    m.Func,
@@ -68,17 +68,20 @@ func handleMsgPlay(ctx sdk.Context, k keeper.AceKeeper, bank types.BankKeeper,
 	// args := strings.Split(play.Args, ",")
 	coins, err := sdk.ParseCoins("1000000chip")
 	if err != nil {
-		fmt.Println("parse coins error: " + err.Error())
+		ctx.Logger().With("module", "ace").
+			Error("parse coins failed", "error", err.Error())
 		return nil, err
 	}
 	pooler, err := sdk.AccAddressFromBech32(types.PoolerAddress)
 	if err != nil {
-		fmt.Println("parse pooler's address error: " + err.Error())
+		ctx.Logger().With("module", "ace").
+			Error("parse pooler's address failed", "error", err.Error())
 		return nil, err
 	}
 	err = bank.SendCoins(ctx, m.Address, pooler, coins)
 	if err != nil {
-		fmt.Println("send coins error: " + err.Error())
+		ctx.Logger().With("module", "ace").
+			Error("send coins failed", "error", err.Error())
 		return nil, err
 	}
 	// fmt.Printf("handle play msg: %d - %s %s %s\n", ctx.BlockHeight(),

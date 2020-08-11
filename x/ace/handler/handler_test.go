@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"fmt"
+	"math/big"
 	"time"
 
 	// "strconv"
@@ -22,12 +23,13 @@ import (
 	"github.com/wangfeiping/saturn/x/ace/types"
 )
 
+var seeds []int64 = []int64{0, 1, 1, 0, 0, 0}
+
 var _ = Describe("x/ace/handler", func() {
 	var (
-		denom   string  = "chip"
-		balance int64   = 9999999
-		num     int     = 5
-		seeds   []int64 = []int64{0, 1, 1, 0, 0}
+		denom   string = "chip"
+		balance int64  = 9999999
+		num     int    = 5
 
 		pubkey        security.PublicKey
 		addrs         []sdk.AccAddress
@@ -77,12 +79,11 @@ var _ = Describe("x/ace/handler", func() {
 					abci.Header{Height: 0, Time: time.Unix(10, 0)})
 				for i := 0; i < num; i++ {
 					hash, err := pubkey.Encrypt(
-						[]byte(fmt.Sprintf("%d", seeds[i])))
+						big.NewInt(seeds[i]).Bytes())
 					Expect(err).ShouldNot(HaveOccurred())
 					seed := types.Seed{Secret: secret, Hash: hash}
 					msg := types.NewMsgPlay(
-						"LuckyAce", 0, 0,
-						seed, "draw", "", addrs[i])
+						"LuckyAce", seed, "draw", "", addrs[i])
 					_, err = handle(ctx, *msg)
 					Expect(err).ShouldNot(HaveOccurred())
 				}
@@ -133,6 +134,7 @@ var _ = Describe("AceHandler", func() {
 		balance int64  = 9999999
 		num     int    = 6
 
+		pubkey        security.PublicKey
 		addrs         []sdk.AccAddress
 		ctx           sdk.Context
 		aceKeeper     keeper.AceKeeper
@@ -146,6 +148,8 @@ var _ = Describe("AceHandler", func() {
 	pk := CreateMockParamsKeeper()
 	accountKeeper = CreateMockAccountKeeper(pk)
 	bankKeeper := CreateMockBankKeeper(accountKeeper, pk)
+	secret := security.Secret{}
+	pubkey = paillier.ResumePubKey(secret)
 
 	handle = handler.NewHandler(aceKeeper, bankKeeper)
 	query = handler.NewQuerier(aceKeeper)
@@ -177,11 +181,13 @@ var _ = Describe("AceHandler", func() {
 				ctx = ctx.WithBlockHeader(
 					abci.Header{Height: 0, Time: time.Unix(10, 0)})
 				for i := 0; i < num; i++ {
-					seed := types.Seed{Hash: []byte("0")}
+					hash, err := pubkey.Encrypt(
+						big.NewInt(seeds[i]).Bytes())
+					Expect(err).ShouldNot(HaveOccurred())
+					seed := types.Seed{Secret: secret, Hash: hash}
 					msg := types.NewMsgPlay(
-						"LuckyAce", 0, 0,
-						seed, "draw", "", addrs[i])
-					_, err := handle(ctx, *msg)
+						"LuckyAce", seed, "draw", "", addrs[i])
+					_, err = handle(ctx, *msg)
 					Expect(err).ShouldNot(HaveOccurred())
 				}
 			})

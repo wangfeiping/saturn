@@ -1,7 +1,6 @@
 package security_test
 
 import (
-	"fmt"
 	"math/big"
 
 	. "github.com/onsi/ginkgo"
@@ -90,28 +89,32 @@ var _ = Describe("Paillier", func() {
 
 	})
 
-	Describe("Codec encode and decode the security keys", func() {
+	Describe("Encode the security keys", func() {
 		Context("encode", func() {
-			privkey = paillier.Create()
-			pubkey = privkey.PublicKey()
+			It("should be success", func() {
+				privkey = paillier.Create()
+				pubkey = privkey.PublicKey()
 
-			if cdc == nil {
-				fmt.Println("nil!!!")
-			}
-			bytes := cdc.MustMarshalJSON(privkey)
-			// if err != nil {
-			// 	fmt.Println("err: ", err)
-			// }
-			// Expect(err).ShouldNot(HaveOccurred())
-			fmt.Println("privkey: ", string(bytes))
+				Expect(cdc).ShouldNot(BeNil())
 
-			bytes = cdc.MustMarshalJSON(pubkey)
-			fmt.Println("pubkey: ", string(bytes))
+				// bytes := cdc.MustMarshalJSON(privkey)
+				// if err != nil {
+				// 	fmt.Println("err: ", err)
+				// }
+				// Expect(err).ShouldNot(HaveOccurred())
+				// fmt.Println("privkey: ", string(bytes))
 
-			var pub security.PublicKey
-			cdc.MustUnmarshalJSON(bytes, &pub)
-			_, _ = pub.Encrypt(big.NewInt(7011).Bytes())
+				bytes := cdc.MustMarshalJSON(pubkey)
+				// fmt.Println("pubkey: ", string(bytes))
 
+				var pub security.PublicKey
+				cdc.MustUnmarshalJSON(bytes, &pub)
+
+				bytesPub := cdc.MustMarshalJSON(pub)
+				// fmt.Println("bytesPub: ", string(bytesPub))
+
+				Expect(string(bytesPub)).To(Equal(string(bytes)))
+			})
 		})
 	})
 })

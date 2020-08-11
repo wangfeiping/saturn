@@ -66,7 +66,7 @@ func queryGames(ctx sdk.Context, k keeper.AceKeeper,
 	req *abci.RequestQuery) ([]byte, error) {
 	lkGame := types.Game{
 		AceID:       types.AceID,
-		GameID:      CheckGameID(ctx),
+		GameID:      checkGameStartHeight(ctx),
 		Type:        "melee",
 		IsGroupGame: false,
 		Info: `
@@ -104,7 +104,14 @@ func queryGames(ctx sdk.Context, k keeper.AceKeeper,
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
-
+	var gameOverHeight int64
+	err = k.Get(ctx, types.KeyLastGameOverHeight, &gameOverHeight)
+	if err != nil {
+		ctx.Logger().Error(types.KeyLastGameOverHeight, "error", err)
+	} else {
+		ctx.Logger().Info(types.KeyLastGameOverHeight,
+			"keeper", "get", "height", gameOverHeight)
+	}
 	return res, nil
 }
 
@@ -190,7 +197,7 @@ func QueryAllPlays(ctx sdk.Context, k keeper.AceKeeper,
 	return res, nil
 }
 
-func CheckGameID(ctx sdk.Context) int64 {
+func checkGameStartHeight(ctx sdk.Context) int64 {
 	seq := ctx.BlockHeight()
 	seq = seq / 10 * 10
 	return seq

@@ -20,7 +20,10 @@ $ saturnd start
 
 ## Play
 
-$ saturncli tx ace play LuckyAce draw "@random" cosmos1ah0pfkn6kwuj24ks2uqqu8m387ffwnm7fvsugm --chain-id saturn-testnet-0
+$ saturncli tx ace play LuckyAce draw "@random" \
+    $(saturncli keys show -a test --keyring-backend=test) \
+    --chain-id saturn-testnet-0 \
+    --keyring-backend=test
 
 ## Test
 
@@ -69,6 +72,8 @@ $ saturncli tx sign tx_ace_play_.json \
       --keyring-backend=test \
     > signed_tx_ace_play_.json
 
+#!/bin/bash
+
 for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 do
   echo "Running $i times"
@@ -88,4 +93,14 @@ do
 
   saturncli tx broadcast signed_tx_ace_play_$i.json
 done
+```
+
+## keys export&import
+
+``` sh
+
+saturncli keys export test
+
+saturncli keys import test test.pri
+
 ```

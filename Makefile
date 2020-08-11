@@ -32,6 +32,7 @@ test: go.sum
 		@if [ -d ${DIR_BUILD} ]; then exit 0; else mkdir ${DIR_BUILD}; fi
 		@go test -mod=readonly -coverprofile=build/covprofile $(PACKAGES)
 		@go tool cover -html=build/covprofile -o build/coverage.html
+		@ginkgo ./...
 
 # look into .golangci.yml for enabling / disabling linters
 lint:

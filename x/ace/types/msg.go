@@ -57,8 +57,6 @@ func (msg MsgAce) ValidateBasic() error {
 // MsgPlay - struct for one-step-play request of game
 type MsgPlay struct {
 	AceID   string         `json:"ace_id" yaml:"ace_id"`
-	GameID  int64          `json:"game_id" yaml:"game_id"`
-	RoundID int            `json:"round_id" yaml:"round_id"`
 	Seed    Seed           `json:"seed" yaml:"seed"` // random seed
 	Func    string         `json:"func" yaml:"func"`
 	Args    string         `json:"args" yaml:"args"`
@@ -67,13 +65,10 @@ type MsgPlay struct {
 
 // NewMsgPlay creates a new MsgPlay instance
 func NewMsgPlay(
-	aceID string, gameID int64, roundID int,
-	seed Seed, function, args string,
+	aceID string, seed Seed, function, args string,
 	addr sdk.AccAddress) *MsgPlay {
 	return &MsgPlay{
 		AceID:   aceID,
-		GameID:  gameID,
-		RoundID: roundID,
 		Seed:    seed,
 		Func:    function,
 		Args:    args,

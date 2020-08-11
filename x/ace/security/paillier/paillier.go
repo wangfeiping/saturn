@@ -12,7 +12,7 @@ var _ security.PublicKey = PaillierPubKey{}
 
 // Create returns a new private key of paillier
 func Create() security.PrivateKey {
-	return PaillierPrivKey{}
+	return PaillierPrivKey{N: 111}
 }
 
 // ResumePrivateKey returns a private key of paillier
@@ -27,6 +27,7 @@ func ResumePubKey(secret security.Secret) security.PublicKey {
 
 // PaillierPubKey public key of paillier
 type PaillierPubKey struct {
+	N int64
 }
 
 // Encrypt the plain text and returns the cipher text
@@ -53,11 +54,12 @@ func (pub PaillierPubKey) Secret() (security.Secret, error) {
 
 // PaillierPrivKey private key of paillier
 type PaillierPrivKey struct {
+	N int64
 }
 
 // PublicKey returns the public key for the private key
 func (priv PaillierPrivKey) PublicKey() security.PublicKey {
-	return PaillierPubKey{}
+	return PaillierPubKey{N: priv.N}
 }
 
 // Decrypt the cipher text and returns the plain text
